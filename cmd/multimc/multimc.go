@@ -1,7 +1,7 @@
 package multimc
 
 import (
-	"cornstone/cmd/multimc/init"
+	"cornstone/cmd/multimc/initialize"
 	"cornstone/cmd/multimc/install"
 	"cornstone/cmd/multimc/dev"
 	"cornstone/cmd/multimc/run"
@@ -53,7 +53,7 @@ func init() {
 	viper.Set("profile", profile)
 
 	Cmd.AddCommand(dev.Cmd)
-	Cmd.AddCommand(init.Cmd)
+	Cmd.AddCommand(initialize.Cmd)
 	Cmd.AddCommand(install.Cmd)
 	Cmd.AddCommand(run.Cmd)
 }

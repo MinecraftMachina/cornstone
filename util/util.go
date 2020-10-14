@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"time"
 )
 
 func JsonMarshalPretty(v interface{}) ([]byte, error) {
@@ -45,10 +44,6 @@ func EnsureFileExists(path string, name string) {
 
 func NewBar(max int, description ...string) *progressbar.ProgressBar {
 	bar := progressbar.Default(int64(max), description...)
-	// wait for throttle duration so initial render doesn't skip
-	// TODO: Fix
-	time.Sleep(65 * time.Millisecond)
-	bar.RenderBlank()
 	return bar
 }
 

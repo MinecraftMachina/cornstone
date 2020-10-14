@@ -65,9 +65,7 @@ func execute() error {
 	if err := os.MkdirAll(stagingPath, 755); err != nil {
 		return err
 	}
-	defer func() {
-		os.RemoveAll(stagingPath)
-	}()
+	defer os.RemoveAll(stagingPath)
 
 	log.Println("Staging modpack...")
 	if err := stageModpack(stagingPath); err != nil {
@@ -273,9 +271,7 @@ func stageModpack(stagingPath string) error {
 		}
 		tempFilePath := tempFile.Name()
 		tempFile.Close()
-		defer func() {
-			os.Remove(tempFilePath)
-		}()
+		defer os.Remove(tempFilePath)
 
 		if err := util.DownloadFileWithProgress("modpack", tempFilePath, input); err != nil {
 			return err

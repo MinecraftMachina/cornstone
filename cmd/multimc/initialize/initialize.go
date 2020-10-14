@@ -69,9 +69,7 @@ func execute() error {
 	}
 	tempFilePath := tempFile.Name()
 	tempFile.Close()
-	defer func() {
-		os.Remove(tempFilePath)
-	}()
+	defer os.Remove(tempFilePath)
 
 	if err := util.DownloadFileWithProgress("MultiMC", tempFilePath, downloadUrl); err != nil {
 		return err

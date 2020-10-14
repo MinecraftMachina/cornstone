@@ -36,6 +36,8 @@ func execute() error {
 	cmd := exec.Command(binaryPath)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
+	cmd.Dir = filepath.Dir(binaryPath)
+	cmd.Path = filepath.Base(binaryPath)
 	if runtime.GOOS == "windows" {
 		cmd.Env = os.Environ()
 		// run with NVIDIA GPU if Optimus is present

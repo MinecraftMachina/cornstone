@@ -1,7 +1,6 @@
 package install
 
 import (
-	"bytes"
 	"context"
 	"cornstone/curseforge"
 	"cornstone/multimc"
@@ -171,12 +170,12 @@ func downloadMods(manifest *curseforge.CornManifest, stagingPath string) error {
 		requests = append(requests, request)
 	}
 
-	resp := client.DoBatch(concurrentCount, requests...)
+	result := client.DoBatch(concurrentCount, requests...)
 
 	log.Println("Downloading files...")
 	bar := util.NewBar(len(requests))
-	for resp := range resp {
-		if err := resp.Err(); err != nil {
+	for response := range result {
+		if err := response.Err(); err != nil {
 			log.Fatal(err)
 		}
 		bar.Add(1)
@@ -267,30 +266,35 @@ func createInstanceConfig(manifest *curseforge.CornManifest, stagingPath string)
 
 func stageModpack(stagingPath string) error {
 	zipper := archiver.NewZip()
-	if _, err := os.Stat(input); err == nil {
-		log.Println("Extracting modpack...")
-		if err := zipper.Unarchive(input, stagingPath); err != nil {
+	if _, err := os.Stat(input); err != nil {
+		tempFile, err := ioutil.TempFile(os.TempDir(), "modpack")
+		if err != nil {
 			return err
 		}
-	} else {
-		log.Println("Downloading modpack...")
-		bar := util.NewBar(1)
-		var data = make([]byte, 0)
-		if _, err := util.DefaultClient.New().Get(input).ByteResponse().ReceiveSuccess(&data); err != nil {
-			return err
-		}
-		bar.Add(1)
+		tempFilePath := tempFile.Name()
+		tempFile.Close()
+		defer func() {
+			os.Remove(tempFilePath)
+		}()
 
-		log.Println("Extracting modpack...")
-		if err := util.ExtractArchive(zipper, util.ExtractConfig{
-			Data:       bytes.NewReader(data),
+		if err := util.DownloadFileWithProgress("modpack", tempFilePath, input); err != nil {
+			return err
+		}
+		input = tempFilePath
+	}
+
+	log.Println("Extracting modpack...")
+	if err := util.ExtractArchiveFromFile(zipper, util.ExtractFileConfig{
+		FilePath: input,
+		Common: util.ExtractCommonConfig{
 			BasePath:   ".",
 			TargetPath: stagingPath,
 			Unwrap:     unwrap,
-		}); err != nil {
-			return err
-		}
+		},
+	}); err != nil {
+		return err
 	}
+
 	return nil
 }
 

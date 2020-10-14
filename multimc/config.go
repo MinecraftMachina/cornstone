@@ -11,7 +11,7 @@ type OSProfile struct {
 	BinaryPath     string
 	DownloadUrl    string
 	DownloadDevUrl string
-	NewReader      func() archiver.Reader
+	NewWalker      func() archiver.Walker
 }
 
 var osProfiles = map[string]OSProfile{
@@ -20,7 +20,7 @@ var osProfiles = map[string]OSProfile{
 		BinaryPath:     "MultiMC.exe",
 		DownloadUrl:    "https://files.multimc.org/downloads/mmc-stable-win32.zip",
 		DownloadDevUrl: "https://files.multimc.org/downloads/mmc-develop-win32.zip",
-		NewReader: func() archiver.Reader {
+		NewWalker: func() archiver.Walker {
 			return archiver.NewZip()
 		},
 	}, "linux": {
@@ -28,7 +28,7 @@ var osProfiles = map[string]OSProfile{
 		BinaryPath:     "MultiMC",
 		DownloadUrl:    "https://files.multimc.org/downloads/mmc-stable-lin64.tar.gz",
 		DownloadDevUrl: "https://files.multimc.org/downloads/mmc-develop-lin64.tar.gz",
-		NewReader: func() archiver.Reader {
+		NewWalker: func() archiver.Walker {
 			return archiver.NewTarGz()
 		},
 	},
@@ -37,7 +37,7 @@ var osProfiles = map[string]OSProfile{
 		BinaryPath:     "Contents/MacOS/MultiMC",
 		DownloadUrl:    "https://files.multimc.org/downloads/mmc-stable-osx64.tar.gz",
 		DownloadDevUrl: "https://files.multimc.org/downloads/mmc-develop-osx64.tar.gz",
-		NewReader: func() archiver.Reader {
+		NewWalker: func() archiver.Walker {
 			return archiver.NewTarGz()
 		},
 	},

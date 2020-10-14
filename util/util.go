@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"github.com/cavaliercoder/grab"
 	"github.com/schollz/progressbar/v3"
 	"log"
 	"os"
@@ -54,4 +55,33 @@ func NewBar(max int, description ...string) *progressbar.ProgressBar {
 
 func SafeJoin(basePath string, unsafePath string) string {
 	return filepath.Join(basePath, filepath.Join("/", unsafePath))
+}
+
+func DownloadFileWithProgress(displayName string, downloadFilePath string, downloadUrl string) error {
+	client := grab.NewClient()
+	client.UserAgent = DefaultUserAgent
+	request, err := grab.NewRequest(downloadFilePath, downloadUrl)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Downloading %s...\n", displayName)
+	response := client.Do(request)
+	bar := NewBar(int(response.Size / 1000))
+
+	t := time.NewTicker(200 * time.Millisecond)
+	defer t.Stop()
+Loop:
+	for {
+		select {
+		case <-t.C:
+			bar.Set(int(response.BytesComplete() / 1000))
+		case <-response.Done:
+			break Loop
+		}
+	}
+	if err := response.Err(); err != nil {
+		return err
+	}
+	return nil
 }

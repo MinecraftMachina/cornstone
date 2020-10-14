@@ -1,7 +1,6 @@
 package initialize
 
 import (
-	"bytes"
 	"cornstone/multimc"
 	"cornstone/util"
 	"fmt"
@@ -64,20 +63,28 @@ func execute() error {
 		downloadUrl = profile.DownloadUrl
 	}
 
-	log.Println("Downloading MultiMC...")
-	bar := util.NewBar(1)
-	var data = make([]byte, 0)
-	if _, err := util.DefaultClient.New().Get(downloadUrl).ByteResponse().ReceiveSuccess(&data); err != nil {
+	tempFile, err := ioutil.TempFile(os.TempDir(), "multimc")
+	if err != nil {
 		return err
 	}
-	bar.Add(1)
+	tempFilePath := tempFile.Name()
+	tempFile.Close()
+	defer func() {
+		os.Remove(tempFilePath)
+	}()
+
+	if err := util.DownloadFileWithProgress("MultiMC", tempFilePath, downloadUrl); err != nil {
+		return err
+	}
 
 	log.Println("Extracting MultiMC...")
-	if err := util.ExtractArchive(profile.NewReader(), util.ExtractConfig{
-		Data:       bytes.NewReader(data),
-		BasePath:   profile.BasePath,
-		TargetPath: destPath,
-		Unwrap:     false,
+	if err := util.ExtractArchiveFromFile(profile.NewWalker(), util.ExtractFileConfig{
+		FilePath: tempFilePath,
+		Common: util.ExtractCommonConfig{
+			BasePath:   profile.BasePath,
+			TargetPath: destPath,
+			Unwrap:     false,
+		},
 	}); err != nil {
 		return err
 	}

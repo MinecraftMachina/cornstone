@@ -5,6 +5,7 @@ import (
 	"cornstone/multimc"
 	"cornstone/util"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
@@ -32,26 +33,29 @@ var Cmd = &cobra.Command{
 	},
 }
 
-func validateMultiMCPath() {
+func validateMultiMCPath() error {
 	if _, err := os.Stat(destPath); os.IsNotExist(err) {
 		if err := os.MkdirAll(destPath, 755); err != nil {
-			return
+			return nil
 		}
 	} else if err != nil {
-		log.Fatal(err)
+		return err
 	} else {
 		files, err := ioutil.ReadDir(destPath)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		if len(files) > 0 {
-			log.Fatal("input directory not empty")
+			return errors.New("input directory not empty")
 		}
 	}
+	return nil
 }
 
 func execute() error {
-	validateMultiMCPath()
+	if err := validateMultiMCPath(); err != nil {
+		return err
+	}
 
 	var downloadUrl string
 	if dev {
@@ -59,6 +63,7 @@ func execute() error {
 	} else {
 		downloadUrl = profile.DownloadUrl
 	}
+
 	log.Println("Downloading MultiMC...")
 	bar := util.NewBar(1)
 	var data = make([]byte, 0)

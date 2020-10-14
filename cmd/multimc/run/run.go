@@ -32,6 +32,7 @@ var Cmd = &cobra.Command{
 
 func execute() error {
 	util.EnsureFileExists(binaryPath, "MultiMC")
+
 	cmd := exec.Command(binaryPath)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout

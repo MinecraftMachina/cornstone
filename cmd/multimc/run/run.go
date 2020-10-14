@@ -17,7 +17,7 @@ var profile *multimc.OSProfile
 
 var Cmd = &cobra.Command{
 	Use:   "run",
-	Short: "Runs MultiMC",
+	Short: "Run an existing MultiMC",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		binaryPath = viper.GetString("multimcPath")
 		profile = viper.Get("profile").(*multimc.OSProfile)

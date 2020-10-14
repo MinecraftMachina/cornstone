@@ -28,7 +28,7 @@ var concurrentCount int
 
 var Cmd = &cobra.Command{
 	Use:   "install",
-	Short: "Installs a Corn or Twitch modpack from file or URL into MultiMC",
+	Short: "Install a Corn or Twitch modpack from file or URL into an existing MultiMC",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		concurrentCount = viper.GetInt("concurrentCount")
 		destPath = viper.GetString("multimcPath")

@@ -12,7 +12,7 @@ var manifest string
 
 var Cmd = &cobra.Command{
 	Use:   "manifest",
-	Short: "Operates on Twitch modpack manifest",
+	Short: "Operate on modpack manifests",
 }
 
 func init() {

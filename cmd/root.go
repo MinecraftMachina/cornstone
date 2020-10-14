@@ -13,7 +13,7 @@ var concurrentCount int
 
 var cmd = &cobra.Command{
 	Use:   "cornstone",
-	Short: "Various command-line utilities for modded Minecraft",
+	Short: "The single utility for all your modded Minecraft needs",
 }
 
 func Execute() error {

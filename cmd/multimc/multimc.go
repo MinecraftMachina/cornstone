@@ -17,7 +17,7 @@ var multimcPath string
 
 var Cmd = &cobra.Command{
 	Use:   "multimc",
-	Short: "Configures MultiMC",
+	Short: "Operate on MultiMC installations",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		validateMultiMCPath()
 	},

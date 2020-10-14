@@ -7,32 +7,36 @@ import (
 )
 
 type OSProfile struct {
-	BasePath    string
-	BinaryPath  string
-	DownloadUrl string
-	NewReader   func() archiver.Reader
+	BasePath       string
+	BinaryPath     string
+	DownloadUrl    string
+	DownloadDevUrl string
+	NewReader      func() archiver.Reader
 }
 
 var osProfiles = map[string]OSProfile{
 	"windows": {
-		BasePath:    "MultiMC/",
-		BinaryPath:  "MultiMC.exe",
-		DownloadUrl: "https://files.multimc.org/downloads/mmc-stable-win32.zip",
+		BasePath:       "MultiMC/",
+		BinaryPath:     "MultiMC.exe",
+		DownloadUrl:    "https://files.multimc.org/downloads/mmc-stable-win32.zip",
+		DownloadDevUrl: "https://files.multimc.org/downloads/mmc-develop-win32.zip",
 		NewReader: func() archiver.Reader {
 			return archiver.NewZip()
 		},
 	}, "linux": {
-		BasePath:    "MultiMC/",
-		BinaryPath:  "MultiMC",
-		DownloadUrl: "https://files.multimc.org/downloads/mmc-stable-lin64.tar.gz",
+		BasePath:       "MultiMC/",
+		BinaryPath:     "MultiMC",
+		DownloadUrl:    "https://files.multimc.org/downloads/mmc-stable-lin64.tar.gz",
+		DownloadDevUrl: "https://files.multimc.org/downloads/mmc-develop-lin64.tar.gz",
 		NewReader: func() archiver.Reader {
 			return archiver.NewTarGz()
 		},
 	},
 	"darwin": {
-		BasePath:    "MultiMC.app/",
-		BinaryPath:  "Contents/MacOS/MultiMC",
-		DownloadUrl: "https://files.multimc.org/downloads/mmc-stable-osx64.tar.gz",
+		BasePath:       "MultiMC.app/",
+		BinaryPath:     "Contents/MacOS/MultiMC",
+		DownloadUrl:    "https://files.multimc.org/downloads/mmc-stable-osx64.tar.gz",
+		DownloadDevUrl: "https://files.multimc.org/downloads/mmc-develop-osx64.tar.gz",
 		NewReader: func() archiver.Reader {
 			return archiver.NewTarGz()
 		},

@@ -16,6 +16,7 @@ import (
 
 var destPath string
 var profile *multimc.OSProfile
+var dev bool
 
 var Cmd = &cobra.Command{
 	Use:   "download",
@@ -52,10 +53,16 @@ func validateMultiMCPath() {
 func execute() error {
 	validateMultiMCPath()
 
+	var downloadUrl string
+	if dev {
+		downloadUrl = profile.DownloadDevUrl
+	} else {
+		downloadUrl = profile.DownloadUrl
+	}
 	log.Println("Downloading MultiMC...")
 	bar := util.NewBar(1)
 	var data = make([]byte, 0)
-	if _, err := util.DefaultClient.New().Get(profile.DownloadUrl).ByteResponse().ReceiveSuccess(&data); err != nil {
+	if _, err := util.DefaultClient.New().Get(downloadUrl).ByteResponse().ReceiveSuccess(&data); err != nil {
 		return err
 	}
 	bar.Add(1)
@@ -82,4 +89,8 @@ func execute() error {
 	}
 	log.Println("Done!")
 	return nil
+}
+
+func init() {
+	Cmd.Flags().BoolVar(&dev, "dev", false, "Download the development version instead of stable")
 }

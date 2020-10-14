@@ -258,20 +258,20 @@ func stageModpack(stagingPath string) error {
 	if _, err := os.Stat(input); err != nil {
 		log.Println("Downloading modpack...")
 		if err := util.DownloadAndExtract(profile.NewWalker(), profile.JavaUrl, util.ExtractCommonConfig{
-			BasePath:   "",
-			TargetPath: stagingPath,
-			Unwrap:     unwrap,
+			BasePath: "",
+			DestPath: stagingPath,
+			Unwrap:   unwrap,
 		}); err != nil {
 			return err
 		}
 	} else {
 		log.Println("Extracting modpack...")
 		if err := util.ExtractArchiveFromFile(zipper, util.ExtractFileConfig{
-			FilePath: input,
+			ArchivePath: input,
 			Common: util.ExtractCommonConfig{
-				BasePath:   "",
-				TargetPath: stagingPath,
-				Unwrap:     unwrap,
+				BasePath: "",
+				DestPath: stagingPath,
+				Unwrap:   unwrap,
 			},
 		}); err != nil {
 			return err

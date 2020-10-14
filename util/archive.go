@@ -16,8 +16,8 @@ import (
 )
 
 type ExtractFileConfig struct {
-	FilePath string
-	Common   ExtractCommonConfig
+	ArchivePath string
+	Common      ExtractCommonConfig
 }
 
 type ExtractReaderConfig struct {
@@ -26,9 +26,9 @@ type ExtractReaderConfig struct {
 }
 
 type ExtractCommonConfig struct {
-	BasePath   string
-	TargetPath string
-	Unwrap     bool
+	BasePath string
+	DestPath string
+	Unwrap   bool
 }
 
 func getFileFullNameFromHeader(file archiver.File) (string, error) {
@@ -63,7 +63,7 @@ func processFile(file archiver.File, config ExtractCommonConfig) error {
 			fullName = fullName[firstPathIndex+1:]
 		}
 	}
-	fullName = filepath.Join(config.TargetPath, fullName)
+	fullName = filepath.Join(config.DestPath, fullName)
 	if file.IsDir() {
 		if err := os.MkdirAll(fullName, file.Mode()); err != nil {
 			return err
@@ -85,7 +85,7 @@ func processFile(file archiver.File, config ExtractCommonConfig) error {
 
 //ExtractArchiveFromReader: All files not a child of basePath will be skipped.
 func ExtractArchiveFromFile(walker archiver.Walker, config ExtractFileConfig) error {
-	if err := walker.Walk(config.FilePath, func(file archiver.File) error {
+	if err := walker.Walk(config.ArchivePath, func(file archiver.File) error {
 		return processFile(file, config.Common)
 	}); err != nil {
 		return err
@@ -129,8 +129,8 @@ func DownloadAndExtract(walker archiver.Walker, downloadUrl string, config Extra
 		return err
 	}
 	if err := ExtractArchiveFromFile(walker, ExtractFileConfig{
-		FilePath: tempFilePath,
-		Common:   config,
+		ArchivePath: tempFilePath,
+		Common:      config,
 	}); err != nil {
 		return err
 	}

@@ -11,11 +11,6 @@ type MultiDownloader struct {
 	client   *grab.Client
 }
 
-type DownloadItem struct {
-	Url      string
-	SavePath string
-}
-
 func NewMultiDownloader(workers int, requests ...*grab.Request) *MultiDownloader {
 	downloader := MultiDownloader{
 		requests: requests,

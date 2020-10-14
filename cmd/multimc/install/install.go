@@ -256,38 +256,27 @@ func createInstanceConfig(manifest *curseforge.CornManifest, stagingPath string)
 func stageModpack(stagingPath string) error {
 	zipper := archiver.NewZip()
 	if _, err := os.Stat(input); err != nil {
-		tempFile, err := ioutil.TempFile(os.TempDir(), "modpack")
-		if err != nil {
-			return err
-		}
-		tempFilePath := tempFile.Name()
-		tempFile.Close()
-		defer os.Remove(tempFilePath)
-
-		request, err := grab.NewRequest(tempFilePath, input)
-		if err != nil {
-			return err
-		}
 		log.Println("Downloading modpack...")
-		if err := util.NewMultiDownloader(concurrentCount, request).Do(); err != nil {
-			return err
-		}
-
-		input = tempFilePath
-	}
-
-	log.Println("Extracting modpack...")
-	if err := util.ExtractArchiveFromFile(zipper, util.ExtractFileConfig{
-		FilePath: input,
-		Common: util.ExtractCommonConfig{
-			BasePath:   ".",
+		if err := util.DownloadAndExtract(profile.NewWalker(), profile.JavaUrl, util.ExtractCommonConfig{
+			BasePath:   "",
 			TargetPath: stagingPath,
 			Unwrap:     unwrap,
-		},
-	}); err != nil {
-		return err
+		}); err != nil {
+			return err
+		}
+	} else {
+		log.Println("Extracting modpack...")
+		if err := util.ExtractArchiveFromFile(zipper, util.ExtractFileConfig{
+			FilePath: input,
+			Common: util.ExtractCommonConfig{
+				BasePath:   "",
+				TargetPath: stagingPath,
+				Unwrap:     unwrap,
+			},
+		}); err != nil {
+			return err
+		}
 	}
-
 	return nil
 }
 

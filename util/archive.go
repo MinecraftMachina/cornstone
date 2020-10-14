@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"archive/zip"
 	"bytes"
+	"github.com/cavaliercoder/grab"
 	"github.com/mholt/archiver/v3"
 	"github.com/pkg/errors"
 	"io"
@@ -107,6 +108,31 @@ func ExtractArchiveFromReader(reader archiver.Reader, config ExtractReaderConfig
 		if err := processFile(file, config.Common); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func DownloadAndExtract(walker archiver.Walker, downloadUrl string, config ExtractCommonConfig) error {
+	tempFile, err := ioutil.TempFile(os.TempDir(), "cornstone")
+	if err != nil {
+		return err
+	}
+	tempFilePath := tempFile.Name()
+	tempFile.Close()
+	defer os.Remove(tempFilePath)
+
+	request, err := grab.NewRequest(tempFilePath, downloadUrl)
+	if err != nil {
+		return err
+	}
+	if err := NewMultiDownloader(1, request).Do(); err != nil {
+		return err
+	}
+	if err := ExtractArchiveFromFile(walker, ExtractFileConfig{
+		FilePath: tempFilePath,
+		Common:   config,
+	}); err != nil {
+		return err
 	}
 	return nil
 }

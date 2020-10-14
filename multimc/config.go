@@ -1,52 +1,32 @@
 package multimc
 
 import (
-	"github.com/mholt/archiver/v3"
-	"github.com/pkg/errors"
-	"runtime"
+	"bytes"
+	"strings"
+	"text/template"
 )
 
-type OSProfile struct {
-	BasePath       string
-	BinaryPath     string
-	DownloadUrl    string
-	DownloadDevUrl string
-	NewWalker      func() archiver.Walker
+var mainConfigTemplate = `
+Analytics={{.Analytics}}
+AnalyticsSeen=2
+JavaPath={{.JavaPath}}
+`[1:]
+
+type MainConfigData struct {
+	JavaPath  string
+	Analytics bool
 }
 
-var osProfiles = map[string]OSProfile{
-	"windows": {
-		BasePath:       "MultiMC/",
-		BinaryPath:     "MultiMC.exe",
-		DownloadUrl:    "https://files.multimc.org/downloads/mmc-stable-win32.zip",
-		DownloadDevUrl: "https://files.multimc.org/downloads/mmc-develop-win32.zip",
-		NewWalker: func() archiver.Walker {
-			return archiver.NewZip()
-		},
-	}, "linux": {
-		BasePath:       "MultiMC/",
-		BinaryPath:     "MultiMC",
-		DownloadUrl:    "https://files.multimc.org/downloads/mmc-stable-lin64.tar.gz",
-		DownloadDevUrl: "https://files.multimc.org/downloads/mmc-develop-lin64.tar.gz",
-		NewWalker: func() archiver.Walker {
-			return archiver.NewTarGz()
-		},
-	},
-	"darwin": {
-		BasePath:       "MultiMC.app/",
-		BinaryPath:     "Contents/MacOS/MultiMC",
-		DownloadUrl:    "https://files.multimc.org/downloads/mmc-stable-osx64.tar.gz",
-		DownloadDevUrl: "https://files.multimc.org/downloads/mmc-develop-osx64.tar.gz",
-		NewWalker: func() archiver.Walker {
-			return archiver.NewTarGz()
-		},
-	},
-}
-
-func GetOSProfile() (*OSProfile, error) {
-	profile, ok := osProfiles[runtime.GOOS]
-	if !ok {
-		return &OSProfile{}, errors.New("unsupported operating system")
+func GenerateMainConfig(data *MainConfigData) (string, error) {
+	// MultiMC strips all left slashes
+	data.JavaPath = strings.Replace(data.JavaPath, "\\", "/", -1)
+	t, err := template.New("").Parse(mainConfigTemplate)
+	if err != nil {
+		return "", err
 	}
-	return &profile, nil
+	var result bytes.Buffer
+	if err := t.Execute(&result, data); err != nil {
+		return "", err
+	}
+	return result.String(), nil
 }

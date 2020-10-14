@@ -4,7 +4,6 @@ import (
 	"cornstone/multimc"
 	"cornstone/util"
 	"fmt"
-	"github.com/cavaliercoder/grab"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -12,12 +11,14 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 )
 
 var destPath string
 var profile *multimc.OSProfile
 var dev bool
+var analytics bool
 
 var Cmd = &cobra.Command{
 	Use:   "init",
@@ -64,33 +65,37 @@ func execute() error {
 		downloadUrl = profile.DownloadUrl
 	}
 
-	tempFile, err := ioutil.TempFile(os.TempDir(), "multimc")
-	if err != nil {
-		return err
-	}
-	tempFilePath := tempFile.Name()
-	tempFile.Close()
-	defer os.Remove(tempFilePath)
-
-	request, err := grab.NewRequest(tempFilePath, downloadUrl)
-	if err != nil {
-		return err
-	}
-
 	log.Println("Downloading MultiMC...")
-	if err := util.NewMultiDownloader(1, request).Do(); err != nil {
+	if err := util.DownloadAndExtract(profile.NewWalker(), downloadUrl, util.ExtractCommonConfig{
+		BasePath:   "",
+		TargetPath: destPath,
+		Unwrap:     true,
+	}); err != nil {
 		return err
 	}
 
-	log.Println("Extracting MultiMC...")
-	if err := util.ExtractArchiveFromFile(profile.NewWalker(), util.ExtractFileConfig{
-		FilePath: tempFilePath,
-		Common: util.ExtractCommonConfig{
-			BasePath:   profile.BasePath,
-			TargetPath: destPath,
-			Unwrap:     false,
-		},
+	log.Println("Downloading Java...")
+	javaPath := filepath.Join(destPath, "java")
+	if err := os.MkdirAll(javaPath, 755); err != nil {
+		return err
+	}
+	if err := util.DownloadAndExtract(profile.NewWalker(), profile.JavaUrl, util.ExtractCommonConfig{
+		BasePath:   "",
+		TargetPath: javaPath,
+		Unwrap:     true,
 	}); err != nil {
+		return err
+	}
+
+	log.Println("Configuring MultiMC...")
+	config, err := multimc.GenerateMainConfig(&multimc.MainConfigData{
+		JavaPath:  filepath.Join("java", profile.JavaBinaryPath),
+		Analytics: analytics,
+	})
+	if err != nil {
+		return err
+	}
+	if err := ioutil.WriteFile(filepath.Join(destPath, "multimc.cfg"), []byte(config), 644); err != nil {
 		return err
 	}
 
@@ -110,4 +115,5 @@ func execute() error {
 
 func init() {
 	Cmd.Flags().BoolVar(&dev, "dev", false, "Download the development version instead of stable")
+	Cmd.Flags().BoolVar(&analytics, "analytics", false, "Enable MultiMC analytics")
 }

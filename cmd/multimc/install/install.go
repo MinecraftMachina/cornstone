@@ -186,6 +186,14 @@ func downloadMods(manifest *curseforge.CornManifest, stagingPath string) error {
 }
 
 func createPackFile(manifest *curseforge.CornManifest, stagingPath string) error {
+	packPath := filepath.Join(stagingPath, "mmc-pack.json")
+	if _, err := os.Stat(packPath); err == nil {
+		// if mmc-pack.json already exists in modpack, use it
+		return nil
+	} else if !os.IsNotExist(err) {
+		return err
+	}
+
 	pack := multimc.Pack{
 		Components:    []multimc.Component{},
 		FormatVersion: 1,
@@ -219,7 +227,6 @@ func createPackFile(manifest *curseforge.CornManifest, stagingPath string) error
 		Version: forgeVersion,
 	})
 
-	packPath := filepath.Join(stagingPath, "mmc-pack.json")
 	packBytes, err := util.JsonMarshalPretty(pack)
 	if err != nil {
 		return err
@@ -242,6 +249,12 @@ func processOverrides(manifest *curseforge.CornManifest, stagingPath string) err
 
 func createInstanceConfig(manifest *curseforge.CornManifest, stagingPath string) error {
 	instanceConfigPath := filepath.Join(stagingPath, "instance.cfg")
+	if _, err := os.Stat(instanceConfigPath); err == nil {
+		// if instance.cfg already exists in modpack, use it
+		return nil
+	} else if !os.IsNotExist(err) {
+		return err
+	}
 	instanceConfig, err := multimc.GenerateInstanceConfig(&multimc.InstanceConfigData{Name: manifest.Name})
 	if err != nil {
 		return err

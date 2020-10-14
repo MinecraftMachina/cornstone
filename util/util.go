@@ -67,7 +67,13 @@ func DownloadFileWithProgress(displayName string, downloadFilePath string, downl
 
 	log.Printf("Downloading %s...\n", displayName)
 	response := client.Do(request)
-	bar := NewBar(int(response.Size / 1000))
+	
+	barSize := int(response.Size / 1000)
+	if barSize < 1 {
+		// spinner mode
+		barSize = -1
+	}
+	bar := NewBar(barSize)
 	defer bar.Finish()
 
 	t := time.NewTicker(200 * time.Millisecond)

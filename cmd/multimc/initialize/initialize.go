@@ -22,7 +22,7 @@ var analytics bool
 
 var Cmd = &cobra.Command{
 	Use:   "init",
-	Short: "Download and initialize MultiMC",
+	Short: "Download and initialize MultiMC with Java bundled",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		destPath = viper.GetString("multimcPath")
 		profile = viper.Get("profile").(*multimc.OSProfile)

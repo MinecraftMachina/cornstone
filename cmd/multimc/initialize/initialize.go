@@ -19,6 +19,7 @@ var destPath string
 var profile *multimc.OSProfile
 var dev bool
 var analytics bool
+var noJava bool
 
 var Cmd = &cobra.Command{
 	Use:   "init",
@@ -74,22 +75,31 @@ func execute() error {
 		return err
 	}
 
-	log.Println("Downloading Java...")
-	javaPath := filepath.Join(destPath, "java")
-	if err := os.MkdirAll(javaPath, 755); err != nil {
-		return err
+	if !noJava {
+		log.Println("Downloading Java...")
+		javaPath := filepath.Join(destPath, "java")
+		if err := os.MkdirAll(javaPath, 755); err != nil {
+			return err
+		}
+		if err := util.DownloadAndExtract(profile.NewWalker(), profile.JavaUrl, util.ExtractCommonConfig{
+			BasePath: "",
+			DestPath: javaPath,
+			Unwrap:   true,
+		}); err != nil {
+			return err
+		}
 	}
-	if err := util.DownloadAndExtract(profile.NewWalker(), profile.JavaUrl, util.ExtractCommonConfig{
-		BasePath: "",
-		DestPath: javaPath,
-		Unwrap:   true,
-	}); err != nil {
-		return err
+
+	var javaPath string
+	if noJava {
+		javaPath = "javaw"
+	} else {
+		javaPath = filepath.Join("java", profile.JavaBinaryPath)
 	}
 
 	log.Println("Configuring MultiMC...")
 	config, err := multimc.GenerateMainConfig(&multimc.MainConfigData{
-		JavaPath:  filepath.Join("java", profile.JavaBinaryPath),
+		JavaPath:  javaPath,
 		Analytics: analytics,
 	})
 	if err != nil {
@@ -116,4 +126,5 @@ func execute() error {
 func init() {
 	Cmd.Flags().BoolVar(&dev, "dev", false, "Download the development version instead of stable")
 	Cmd.Flags().BoolVar(&analytics, "analytics", false, "Enable MultiMC analytics")
+	Cmd.Flags().BoolVar(&noJava, "no-java", false, "Don't download Java")
 }

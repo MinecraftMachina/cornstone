@@ -1,4 +1,4 @@
-package download
+package init
 
 import (
 	"bytes"
@@ -19,8 +19,8 @@ var profile *multimc.OSProfile
 var dev bool
 
 var Cmd = &cobra.Command{
-	Use:   "download",
-	Short: "Downloads and installs MultiMC",
+	Use:   "init",
+	Short: "Download and initialize MultiMC",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		destPath = viper.GetString("multimcPath")
 		profile = viper.Get("profile").(*multimc.OSProfile)

@@ -52,14 +52,6 @@ func NewBar(max int, description ...string) *progressbar.ProgressBar {
 	return bar
 }
 
-func SafeJoin(paths ...string) string {
-	if len(paths) < 1 {
-		return ""
-	}
-	if len(paths) < 2 {
-		return paths[0]
-	}
-	unsafeJoinElems := append([]string{"/"}, paths[1:]...)
-	safePath := filepath.Join(unsafeJoinElems...)
-	return filepath.Join(paths[0], safePath)
+func SafeJoin(basePath string, unsafePath string) string {
+	return filepath.Join(basePath, filepath.Join("/", unsafePath))
 }

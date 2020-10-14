@@ -160,7 +160,7 @@ func downloadMods(manifest *curseforge.CornManifest, stagingPath string) error {
 	}
 
 	for _, file := range manifest.ExternalFiles {
-		downloadPath := util.SafeJoin(stagingPath, "minecraft", file.InstallPath)
+		downloadPath := util.SafeJoin(filepath.Join(stagingPath, "minecraft"), file.InstallPath)
 		request, err := grab.NewRequest(downloadPath, file.Url)
 		if err != nil {
 			return err

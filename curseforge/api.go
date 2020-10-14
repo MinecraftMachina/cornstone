@@ -10,7 +10,7 @@ var client = util.DefaultClient.New()
 
 func QueryAddon(id int) (*Addon, error) {
 	addon := Addon{}
-	if _, err := client.New().Get(fmt.Sprintf("%s%d", url, id)).ReceiveSuccess(&addon); err != nil {
+	if _, err := client.Get(fmt.Sprintf("%s%d", url, id)).ReceiveSuccess(&addon); err != nil {
 		return nil, err
 	}
 	return &addon, nil
@@ -18,8 +18,7 @@ func QueryAddon(id int) (*Addon, error) {
 
 func GetAddonFileDownloadUrl(addonId int, fileId int) (string, error) {
 	result := make([]byte, 0)
-
-	if _, err := client.New().Get(fmt.Sprintf("%s%d/file/%d/download-url", url, addonId, fileId)).
+	if _, err := client.Get(fmt.Sprintf("%s%d/file/%d/download-url", url, addonId, fileId)).
 		ByteResponse().
 		ReceiveSuccess(&result); err != nil {
 		return "", err

@@ -109,9 +109,6 @@ func downloadMods(manifest *curseforge.CornManifest, stagingPath string) error {
 		return err
 	}
 
-	client := grab.NewClient()
-	client.UserAgent = util.DefaultUserAgent
-
 	var source []interface{}
 	for i := range manifest.Files {
 		source = append(source, &manifest.Files[i])
@@ -168,16 +165,9 @@ func downloadMods(manifest *curseforge.CornManifest, stagingPath string) error {
 		requests = append(requests, request)
 	}
 
-	result := client.DoBatch(concurrentCount, requests...)
-
 	log.Println("Downloading files...")
-	bar := util.NewBar(len(requests))
-	defer bar.Finish()
-	for response := range result {
-		if err := response.Err(); err != nil {
-			log.Fatal(err)
-		}
-		bar.Add(1)
+	if err := util.NewMultiDownloader(concurrentCount, requests...).Do(); err != nil {
+		return err
 	}
 
 	return nil
@@ -274,9 +264,15 @@ func stageModpack(stagingPath string) error {
 		tempFile.Close()
 		defer os.Remove(tempFilePath)
 
-		if err := util.DownloadFileWithProgress("modpack", tempFilePath, input); err != nil {
+		request, err := grab.NewRequest(tempFilePath, input)
+		if err != nil {
 			return err
 		}
+		log.Println("Downloading modpack...")
+		if err := util.NewMultiDownloader(concurrentCount, request).Do(); err != nil {
+			return err
+		}
+
 		input = tempFilePath
 	}
 

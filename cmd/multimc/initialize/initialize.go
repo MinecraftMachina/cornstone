@@ -4,6 +4,7 @@ import (
 	"cornstone/multimc"
 	"cornstone/util"
 	"fmt"
+	"github.com/cavaliercoder/grab"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -71,7 +72,13 @@ func execute() error {
 	tempFile.Close()
 	defer os.Remove(tempFilePath)
 
-	if err := util.DownloadFileWithProgress("MultiMC", tempFilePath, downloadUrl); err != nil {
+	request, err := grab.NewRequest(tempFilePath, downloadUrl)
+	if err != nil {
+		return err
+	}
+
+	log.Println("Downloading MultiMC...")
+	if err := util.NewMultiDownloader(1, request).Do(); err != nil {
 		return err
 	}
 

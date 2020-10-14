@@ -257,7 +257,7 @@ func stageModpack(stagingPath string) error {
 	zipper := archiver.NewZip()
 	if _, err := os.Stat(input); err != nil {
 		log.Println("Downloading modpack...")
-		if err := util.DownloadAndExtract(profile.NewWalker(), profile.JavaUrl, util.ExtractCommonConfig{
+		if err := util.DownloadAndExtract(profile.NewWalker(), input, util.ExtractCommonConfig{
 			BasePath: "",
 			DestPath: stagingPath,
 			Unwrap:   unwrap,

@@ -172,6 +172,7 @@ func downloadMods(manifest *curseforge.CornManifest, stagingPath string) error {
 
 	log.Println("Downloading files...")
 	bar := util.NewBar(len(requests))
+	defer bar.Finish()
 	for response := range result {
 		if err := response.Err(); err != nil {
 			log.Fatal(err)

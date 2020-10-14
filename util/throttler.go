@@ -57,6 +57,7 @@ func (t *Throttler) Run() <-chan Result {
 
 	go func() {
 		wg.Wait()
+		bar.Finish()
 		close(resultChan)
 	}()
 

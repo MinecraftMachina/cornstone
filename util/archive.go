@@ -16,11 +16,11 @@ import (
 
 type ExtractFileConfig struct {
 	FilePath string
-	Common ExtractCommonConfig
+	Common   ExtractCommonConfig
 }
 
 type ExtractReaderConfig struct {
-	Data *bytes.Reader
+	Data   *bytes.Reader
 	Common ExtractCommonConfig
 }
 

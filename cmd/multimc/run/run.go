@@ -1,6 +1,7 @@
 package run
 
 import (
+	"cornstone/aliases/e"
 	"cornstone/multimc"
 	"cornstone/util"
 	"github.com/spf13/cobra"
@@ -42,5 +43,5 @@ func execute() error {
 		// run with NVIDIA GPU if Optimus is present
 		cmd.Env = append(cmd.Env, "SHIM_MCCOMPAT=0x800000001")
 	}
-	return cmd.Start()
+	return e.S(cmd.Start())
 }

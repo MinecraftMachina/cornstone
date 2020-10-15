@@ -2,6 +2,7 @@ package convert
 
 import (
 	"context"
+	"cornstone/aliases/e"
 	"cornstone/curseforge"
 	"cornstone/util"
 	"encoding/json"
@@ -40,11 +41,11 @@ func execute() error {
 	log.Println("Loading manifest...")
 	manifestBytes, err := ioutil.ReadFile(manifestInput)
 	if err != nil {
-		return err
+		return e.S(err)
 	}
 	manifest := curseforge.CornManifest{}
 	if err := json.Unmarshal(manifestBytes, &manifest); err != nil {
-		return err
+		return e.S(err)
 	}
 
 	var source []interface{}
@@ -80,16 +81,16 @@ func execute() error {
 	for result := range throttler.Run() {
 		if result.Error != nil {
 			cancelFunc()
-			return result.Error
+			return e.S(result.Error)
 		}
 	}
 
 	cornManifestBytes, err := util.JsonMarshalPretty(manifest)
 	if err != nil {
-		return err
+		return e.S(err)
 	}
 	if err := ioutil.WriteFile(manifestOutput, cornManifestBytes, 644); err != nil {
-		return err
+		return e.S(err)
 	}
 	log.Println("Done! Saved to: " + manifestOutput)
 	return nil

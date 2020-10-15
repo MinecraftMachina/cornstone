@@ -1,6 +1,7 @@
 package initialize
 
 import (
+	"cornstone/aliases/e"
 	"cornstone/multimc"
 	"cornstone/util"
 	"fmt"
@@ -74,21 +75,21 @@ func execute() error {
 		DestPath: multimcPath,
 		Unwrap:   true,
 	}); err != nil {
-		return err
+		return e.S(err)
 	}
 
 	if !noJava {
 		log.Println("Downloading Java...")
 		javaPath := filepath.Join(destPath, "java")
 		if err := os.MkdirAll(javaPath, 755); err != nil {
-			return err
+			return e.S(err)
 		}
 		if err := util.DownloadAndExtract(profile.JavaUrl, util.ExtractCommonConfig{
 			BasePath: "",
 			DestPath: javaPath,
 			Unwrap:   true,
 		}); err != nil {
-			return err
+			return e.S(err)
 		}
 	}
 
@@ -105,10 +106,10 @@ func execute() error {
 		Analytics: analytics,
 	})
 	if err != nil {
-		return err
+		return e.S(err)
 	}
 	if err := ioutil.WriteFile(filepath.Join(destPath, "multimc.cfg"), []byte(config), 644); err != nil {
-		return err
+		return e.S(err)
 	}
 
 	if runtime.GOOS == "darwin" {
@@ -118,7 +119,7 @@ func execute() error {
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
 		if err := cmd.Run(); err != nil {
-			return err
+			return e.S(err)
 		}
 	}
 	log.Println("Done!")

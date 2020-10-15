@@ -1,6 +1,7 @@
 package util
 
 import (
+	"cornstone/aliases/e"
 	"fmt"
 	"github.com/dghubble/sling"
 	"github.com/pkg/errors"
@@ -17,7 +18,7 @@ var (
 )
 
 func CreateNon200Error(code int, body []byte) error {
-	return errors.WithMessage(errors.WithStack(ErrNon200StatusCode),
+	return errors.WithMessage(e.S(ErrNon200StatusCode),
 		fmt.Sprintf("code: %d, body: %s", code, string(body)))
 }
 

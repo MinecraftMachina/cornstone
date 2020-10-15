@@ -2,6 +2,7 @@ package install
 
 import (
 	"context"
+	"cornstone/aliases/e"
 	"cornstone/curseforge"
 	"cornstone/multimc"
 	"cornstone/util"
@@ -52,50 +53,50 @@ var forgeMap = map[string]string{
 func execute() error {
 	instancePath := filepath.Join(destPath, "instances", name)
 	if _, err := os.Stat(instancePath); err == nil {
-		return errors.New("Modpack already exists: " + instancePath)
+		return errors.New("modpack already exists: " + instancePath)
 	} else if !os.IsNotExist(err) {
-		return err
+		return e.S(err)
 	}
 
 	stagingPath := filepath.Join(destPath, "instances", "_CORN_TEMP")
 	if err := os.RemoveAll(stagingPath); err != nil {
-		return err
+		return e.S(err)
 	}
 	if err := os.MkdirAll(stagingPath, 755); err != nil {
-		return err
+		return e.S(err)
 	}
 	defer os.RemoveAll(stagingPath)
 
 	log.Println("Staging modpack...")
 	if err := stageModpack(stagingPath); err != nil {
-		return err
+		return e.S(err)
 	}
 
 	manifestFile := filepath.Join(stagingPath, "manifest.json")
 	manifestBytes, err := ioutil.ReadFile(manifestFile)
 	if err != nil {
-		return err
+		return e.S(err)
 	}
 	manifest := curseforge.CornManifest{}
 	if err := json.Unmarshal(manifestBytes, &manifest); err != nil {
-		return err
+		return e.S(err)
 	}
 
 	if err := processOverrides(&manifest, stagingPath); err != nil {
-		return err
+		return e.S(err)
 	}
 	if err := createInstanceConfig(&manifest, stagingPath); err != nil {
-		return err
+		return e.S(err)
 	}
 	if err := createPackFile(&manifest, stagingPath); err != nil {
-		return err
+		return e.S(err)
 	}
 	if err := downloadMods(&manifest, stagingPath); err != nil {
-		return err
+		return e.S(err)
 	}
 
 	if err := os.Rename(stagingPath, instancePath); err != nil {
-		return err
+		return e.S(err)
 	}
 	log.Println("Done!")
 	return nil
@@ -259,7 +260,7 @@ func stageModpack(stagingPath string) error {
 			DestPath: stagingPath,
 			Unwrap:   unwrap,
 		}); err != nil {
-			return err
+			return e.S(err)
 		}
 	} else {
 		log.Println("Extracting modpack...")
@@ -271,7 +272,7 @@ func stageModpack(stagingPath string) error {
 				Unwrap:   unwrap,
 			},
 		}); err != nil {
-			return err
+			return e.S(err)
 		}
 	}
 	return nil

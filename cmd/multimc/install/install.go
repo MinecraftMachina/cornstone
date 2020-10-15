@@ -90,7 +90,6 @@ func execute() error {
 	if err := createPackFile(&manifest, stagingPath); err != nil {
 		return err
 	}
-	log.Println("Downloading mods...")
 	if err := downloadMods(&manifest, stagingPath); err != nil {
 		return err
 	}

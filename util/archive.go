@@ -159,7 +159,8 @@ func ExtractArchiveFromReader(config ExtractReaderConfig) error {
 	return nil
 }
 
-func DownloadAndExtract(downloadUrl string, config ExtractCommonConfig) error {
+func DownloadAndExtract(downloadUrl string, eventChan chan<- bool, config ExtractCommonConfig) error {
+	defer close(eventChan)
 	tempFile, err := ioutil.TempFile(os.TempDir(), "cornstone")
 	if err != nil {
 		return err
@@ -176,6 +177,10 @@ func DownloadAndExtract(downloadUrl string, config ExtractCommonConfig) error {
 	}
 	if err := NewMultiDownloader(1, request).Do(); err != nil {
 		return err
+	}
+	select {
+	case eventChan <- true:
+	default:
 	}
 	if err := ExtractArchiveFromFile(ExtractFileConfig{
 		ArchivePath: tempFilePath,

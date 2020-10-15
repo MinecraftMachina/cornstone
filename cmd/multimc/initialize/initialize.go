@@ -70,7 +70,12 @@ func execute() error {
 	}
 
 	log.Println("Downloading MultiMC...")
-	if err := util.DownloadAndExtract(downloadUrl, util.ExtractCommonConfig{
+	eventChan := make(chan bool)
+	go func() {
+		<-eventChan
+		log.Println("Extracting MultiMC...")
+	}()
+	if err := util.DownloadAndExtract(downloadUrl, eventChan, util.ExtractCommonConfig{
 		BasePath: "",
 		DestPath: multimcPath,
 		Unwrap:   true,
@@ -84,7 +89,12 @@ func execute() error {
 		if err := os.MkdirAll(javaPath, 777); err != nil {
 			return e.S(err)
 		}
-		if err := util.DownloadAndExtract(profile.JavaUrl, util.ExtractCommonConfig{
+		eventChan := make(chan bool)
+		go func() {
+			<-eventChan
+			log.Println("Extracting Java...")
+		}()
+		if err := util.DownloadAndExtract(profile.JavaUrl, eventChan, util.ExtractCommonConfig{
 			BasePath: "",
 			DestPath: javaPath,
 			Unwrap:   true,

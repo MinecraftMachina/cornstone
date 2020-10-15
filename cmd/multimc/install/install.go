@@ -270,7 +270,12 @@ func createInstanceConfig(manifest *curseforge.CornManifest, stagingPath string)
 func stageModpack(stagingPath string) error {
 	if _, err := os.Stat(input); err != nil {
 		log.Println("Downloading modpack...")
-		if err := util.DownloadAndExtract(input, util.ExtractCommonConfig{
+		eventChan := make(chan bool)
+		go func() {
+			<-eventChan
+			log.Println("Extracting modpack...")
+		}()
+		if err := util.DownloadAndExtract(input, eventChan, util.ExtractCommonConfig{
 			BasePath: "",
 			DestPath: stagingPath,
 			Unwrap:   unwrap,

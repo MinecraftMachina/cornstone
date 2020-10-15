@@ -10,11 +10,13 @@ var mainConfigTemplate = `
 Analytics={{.Analytics}}
 AnalyticsSeen=2
 JavaPath={{.JavaPath}}
+LastHostname={{.LastHostname}}
 `[1:]
 
 type MainConfigData struct {
 	JavaPath  string
 	Analytics bool
+	LastHostname string
 }
 
 func GenerateMainConfig(data *MainConfigData) (string, error) {

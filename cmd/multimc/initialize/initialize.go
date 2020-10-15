@@ -111,9 +111,14 @@ func execute() error {
 	}
 
 	log.Println("Configuring MultiMC...")
+	hostname, err := os.Hostname()
+	if err != nil {
+		return e.S(err)
+	}
 	config, err := multimc.GenerateMainConfig(&multimc.MainConfigData{
-		JavaPath:  javaPath,
-		Analytics: analytics,
+		JavaPath:     javaPath,
+		Analytics:    analytics,
+		LastHostname: hostname,
 	})
 	if err != nil {
 		return e.S(err)

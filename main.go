@@ -8,6 +8,6 @@ import (
 
 func main() {
 	if err := cmd.Execute(); err != nil {
-		log.Fatal(e.P(err))
+		log.Fatalln(e.P(err))
 	}
 }

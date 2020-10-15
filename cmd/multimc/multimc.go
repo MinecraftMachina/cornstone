@@ -32,24 +32,24 @@ func validateMultiMCPath() {
 	if os.IsNotExist(err) {
 		return
 	} else if err != nil {
-		log.Fatal(e.P(err))
+		log.Fatalln(e.P(err))
 	}
 	if !stat.IsDir() {
-		log.Fatal("supplied path is not a directory")
+		log.Fatalln("supplied path is not a directory")
 	}
 }
 
 func init() {
 	Cmd.PersistentFlags().StringVarP(&multimcPath, "multimc-path", "m", "", "Path to MultiMC root directory")
 	if err := Cmd.MarkPersistentFlagRequired("multimc-path"); err != nil {
-		log.Fatal(e.P(err))
+		log.Fatalln(e.P(err))
 	}
 	if err := viper.BindPFlag("multimcPath", Cmd.PersistentFlags().Lookup("multimc-path")); err != nil {
-		log.Fatal(e.P(err))
+		log.Fatalln(e.P(err))
 	}
 	profile, err := multimc.GetOSProfile()
 	if err != nil {
-		log.Fatal(e.P(err))
+		log.Fatalln(e.P(err))
 	}
 	viper.Set("profile", profile)
 

@@ -24,7 +24,7 @@ func Execute() error {
 func init() {
 	cmd.PersistentFlags().IntVarP(&concurrentCount, "concurrent-count", "c", 5, "Concurrent download count")
 	if err := viper.BindPFlag("concurrentCount", cmd.PersistentFlags().Lookup("concurrent-count")); err != nil {
-		log.Fatal(e.P(err))
+		log.Fatalln(e.P(err))
 	}
 
 	cmd.AddCommand(manifest.Cmd)

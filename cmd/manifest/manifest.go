@@ -19,10 +19,10 @@ var Cmd = &cobra.Command{
 func init() {
 	Cmd.PersistentFlags().StringVarP(&manifest, "input", "i", "", "Path to input manifest.json")
 	if err := Cmd.MarkPersistentFlagRequired("input"); err != nil {
-		log.Fatal(e.P(err))
+		log.Fatalln(e.P(err))
 	}
 	if err := viper.BindPFlag("manifestInput", Cmd.PersistentFlags().Lookup("input")); err != nil {
-		log.Fatal(e.P(err))
+		log.Fatalln(e.P(err))
 	}
 
 	Cmd.AddCommand(convert.Cmd)

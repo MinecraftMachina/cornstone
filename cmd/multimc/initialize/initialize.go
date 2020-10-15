@@ -31,7 +31,11 @@ var Cmd = &cobra.Command{
 		destPath = filepath.Join(multimcPath, filepath.Dir(profile.BinaryPath))
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		if err := validateMultiMCPath(); err != nil {
+			log.Fatal(err)
+		}
 		if err := execute(); err != nil {
+			os.RemoveAll(multimcPath)
 			log.Fatal(err)
 		}
 	},
@@ -57,10 +61,6 @@ func validateMultiMCPath() error {
 }
 
 func execute() error {
-	if err := validateMultiMCPath(); err != nil {
-		return err
-	}
-
 	var downloadUrl string
 	if dev {
 		downloadUrl = profile.DownloadDevUrl

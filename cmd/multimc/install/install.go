@@ -34,6 +34,7 @@ var Cmd = &cobra.Command{
 		destPath = filepath.Join(destPath, filepath.Dir(profile.BinaryPath))
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		util.EnsureDirectoryExists(destPath, "MultiMC")
 		if err := execute(); err != nil {
 			log.Fatal(err)
 		}
@@ -49,7 +50,6 @@ var forgeMap = map[string]string{
 
 // ref: https://github.com/MultiMC/MultiMC5/blob/develop/api/logic/InstanceImportTask.cpp
 func execute() error {
-	util.EnsureDirectoryExists(destPath, "MultiMC")
 	instancePath := filepath.Join(destPath, "instances", name)
 	if _, err := os.Stat(instancePath); err == nil {
 		return errors.New("Modpack already exists: " + instancePath)

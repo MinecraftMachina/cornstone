@@ -66,11 +66,15 @@ func (s *MultiDownloader) handleSingleFile(result <-chan *grab.Response) error {
 	bar := NewBar(barSize)
 	defer bar.Finish()
 
+	var lastSize int
 Loop:
 	for {
 		select {
 		case <-t.C:
-			bar.Set(int(response.BytesComplete() / SizeDivisor))
+			delta := int(response.BytesComplete()/SizeDivisor) - lastSize
+			// set will break spinner above 10, ref: progressbar.go#L400
+			bar.Add(delta)
+			lastSize += delta
 		case <-response.Done:
 			break Loop
 		}

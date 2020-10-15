@@ -1,6 +1,7 @@
 package util
 
 import (
+	"context"
 	"github.com/cavaliercoder/grab"
 	"time"
 )
@@ -24,20 +25,26 @@ func NewMultiDownloader(workers int, requests ...*grab.Request) *MultiDownloader
 }
 
 func (s *MultiDownloader) Do() error {
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	for i := range s.requests {
+		s.requests[i] = s.requests[i].WithContext(ctx)
+	}
+
 	result := s.client.DoBatch(s.workers, s.requests...)
 
-	if len(s.requests) < 2 {
-		return s.handleSingleFile(result)
+	if len(s.requests) > 1 {
+		return s.handleMultiFile(result, cancelFunc)
 	} else {
-		return s.handleMultiFile(result)
+		return s.handleSingleFile(result)
 	}
 }
 
-func (s *MultiDownloader) handleMultiFile(result <-chan *grab.Response) error {
+func (s *MultiDownloader) handleMultiFile(result <-chan *grab.Response, cancelFunc context.CancelFunc) error {
 	bar := NewBar(len(s.requests))
 	defer bar.Finish()
 	for response := range result {
 		if err := response.Err(); err != nil {
+			cancelFunc()
 			return err
 		}
 		bar.Add(1)

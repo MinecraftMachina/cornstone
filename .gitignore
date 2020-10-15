@@ -1,5 +1,5 @@
-/examples/**/MultiMC/
-/examples/**/cornstone*/
+/examples/MultiMC/
+/examples/cornstone*
 /TEST/
 /manifest*
 /*.zip

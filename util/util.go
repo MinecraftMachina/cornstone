@@ -52,7 +52,7 @@ func SafeJoin(basePath string, unsafePath string) string {
 }
 
 func MergePaths(sourcePath string, destPath string) error {
-	return filepath.Walk(sourcePath, func(sourceFile string, info os.FileInfo, err error) error {
+	err := filepath.Walk(sourcePath, func(sourceFile string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -72,4 +72,8 @@ func MergePaths(sourcePath string, destPath string) error {
 		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	return os.RemoveAll(sourcePath)
 }

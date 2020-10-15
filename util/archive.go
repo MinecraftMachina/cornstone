@@ -88,7 +88,7 @@ func processFile(file archiver.File, config ExtractCommonConfig) error {
 			fullName = fullName[firstPathIndex+1:]
 		}
 	}
-	fullName = filepath.Join(config.DestPath, fullName)
+	fullName = SafeJoin(config.DestPath, fullName)
 	if file.IsDir() {
 		if err := os.MkdirAll(fullName, file.Mode()); err != nil {
 			return err

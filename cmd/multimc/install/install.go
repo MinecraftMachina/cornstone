@@ -236,7 +236,7 @@ func createPackFile(manifest *curseforge.CornManifest, stagingPath string) error
 
 func processOverrides(manifest *curseforge.CornManifest, stagingPath string) error {
 	if manifest.Overrides != "" {
-		overridePath := filepath.Join(stagingPath, manifest.Overrides)
+		overridePath := util.SafeJoin(stagingPath, manifest.Overrides)
 		minecraftPath := filepath.Join(stagingPath, "minecraft")
 		if _, err := os.Stat(minecraftPath); err == nil {
 			return util.MergePaths(overridePath, minecraftPath)

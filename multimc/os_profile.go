@@ -25,7 +25,7 @@ var osProfiles = map[string]OSProfile{
 		DownloadUrl:    "https://files.multimc.org/downloads/mmc-stable-lin64.tar.gz",
 		DownloadDevUrl: "https://files.multimc.org/downloads/mmc-develop-lin64.tar.gz",
 		JavaUrl:        "https://corretto.aws/downloads/latest/amazon-corretto-8-x64-linux-jdk.tar.gz",
-		JavaBinaryPath: "bin/javaw",
+		JavaBinaryPath: "bin/java",
 	},
 	"darwin": {
 		BinaryPath:     "Contents/MacOS/MultiMC",

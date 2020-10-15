@@ -8,12 +8,12 @@ import (
 	"cornstone/util"
 	"encoding/json"
 	"github.com/cavaliercoder/grab"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -52,27 +52,16 @@ var forgeMap = map[string]string{
 // ref: https://github.com/MultiMC/MultiMC5/blob/develop/api/logic/InstanceImportTask.cpp
 func execute() error {
 	instancePath := filepath.Join(destPath, "instances", name)
-	if _, err := os.Stat(instancePath); err == nil {
-		return errors.New("modpack already exists: " + instancePath)
-	} else if !os.IsNotExist(err) {
+	if err := os.MkdirAll(instancePath, 755); err != nil {
 		return e.S(err)
 	}
-
-	stagingPath := filepath.Join(destPath, "instances", "_CORN_TEMP")
-	if err := os.RemoveAll(stagingPath); err != nil {
-		return e.S(err)
-	}
-	if err := os.MkdirAll(stagingPath, 755); err != nil {
-		return e.S(err)
-	}
-	defer os.RemoveAll(stagingPath)
 
 	log.Println("Staging modpack...")
-	if err := stageModpack(stagingPath); err != nil {
+	if err := stageModpack(instancePath); err != nil {
 		return e.S(err)
 	}
 
-	manifestFile := filepath.Join(stagingPath, "manifest.json")
+	manifestFile := filepath.Join(instancePath, "manifest.json")
 	manifestBytes, err := ioutil.ReadFile(manifestFile)
 	if err != nil {
 		return e.S(err)
@@ -81,28 +70,25 @@ func execute() error {
 	if err := json.Unmarshal(manifestBytes, &manifest); err != nil {
 		return e.S(err)
 	}
+	if err := processOverrides(&manifest, instancePath); err != nil {
+		return e.S(err)
+	}
+	if err := createInstanceConfig(&manifest, instancePath); err != nil {
+		return e.S(err)
+	}
+	if err := createPackFile(&manifest, instancePath); err != nil {
+		return e.S(err)
+	}
+	if err := downloadMods(&manifest, instancePath); err != nil {
+		return e.S(err)
+	}
 
-	if err := processOverrides(&manifest, stagingPath); err != nil {
-		return e.S(err)
-	}
-	if err := createInstanceConfig(&manifest, stagingPath); err != nil {
-		return e.S(err)
-	}
-	if err := createPackFile(&manifest, stagingPath); err != nil {
-		return e.S(err)
-	}
-	if err := downloadMods(&manifest, stagingPath); err != nil {
-		return e.S(err)
-	}
-
-	if err := os.Rename(stagingPath, instancePath); err != nil {
-		return e.S(err)
-	}
 	log.Println("Done!")
 	return nil
 }
 
 func downloadMods(manifest *curseforge.CornManifest, stagingPath string) error {
+	minecraftPath := filepath.Join(stagingPath, "minecraft")
 	modsPath := filepath.Join(stagingPath, "minecraft", "mods")
 	if err := os.MkdirAll(modsPath, 755); err != nil {
 		return err
@@ -132,6 +118,7 @@ func downloadMods(manifest *curseforge.CornManifest, stagingPath string) error {
 	})
 
 	log.Println("Building addon download URLs...")
+	downloadPaths := map[string]bool{}
 	var requests []*grab.Request
 	for result := range throttler.Run() {
 		if result.Error != nil {
@@ -139,27 +126,28 @@ func downloadMods(manifest *curseforge.CornManifest, stagingPath string) error {
 			return result.Error
 		}
 		opResult := result.Data.(OpResult)
-		request, err := grab.NewRequest(modsPath, opResult.downloadUrl)
+
+		downloadPath := util.SafeJoin(modsPath, path.Base(opResult.downloadUrl))
+		if !opResult.file.Required {
+			downloadPath += ".disabled"
+		}
+		downloadPaths[downloadPath] = true
+		request, err := grab.NewRequest(downloadPath, opResult.downloadUrl)
 		if err != nil {
 			return err
-		}
-		request.BeforeCopy = func(resp *grab.Response) error {
-			if !opResult.file.Required {
-				resp.Filename += ".disabled"
-			}
-			return nil
 		}
 		requests = append(requests, request)
 	}
 
 	for _, file := range manifest.ExternalFiles {
-		downloadPath := util.SafeJoin(filepath.Join(stagingPath, "minecraft"), file.InstallPath)
+		downloadPath := util.SafeJoin(minecraftPath, file.InstallPath)
+		if !file.Required {
+			downloadPath += ".disabled"
+		}
+		downloadPaths[downloadPath] = true
 		request, err := grab.NewRequest(downloadPath, file.Url)
 		if err != nil {
 			return err
-		}
-		if !file.Required {
-			request.Filename += ".disabled"
 		}
 		requests = append(requests, request)
 	}
@@ -169,6 +157,28 @@ func downloadMods(manifest *curseforge.CornManifest, stagingPath string) error {
 		return err
 	}
 
+	log.Println("Removing old mods...")
+	if err := filepath.Walk(modsPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(modsPath, path)
+		if err != nil {
+			return err
+		}
+		if rel == "." {
+			return nil
+		}
+		if _, ok := downloadPaths[path]; !ok {
+			log.Println(path)
+			if err := os.RemoveAll(path); err != nil {
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -227,7 +237,12 @@ func createPackFile(manifest *curseforge.CornManifest, stagingPath string) error
 func processOverrides(manifest *curseforge.CornManifest, stagingPath string) error {
 	if manifest.Overrides != "" {
 		overridePath := filepath.Join(stagingPath, manifest.Overrides)
-		if err := os.Rename(overridePath, filepath.Join(stagingPath, "minecraft")); err != nil {
+		minecraftPath := filepath.Join(stagingPath, "minecraft")
+		if _, err := os.Stat(minecraftPath); err == nil {
+			return util.MergePaths(overridePath, minecraftPath)
+		} else if os.IsNotExist(err) {
+			return os.Rename(overridePath, minecraftPath)
+		} else {
 			return err
 		}
 	}

@@ -50,3 +50,26 @@ func NewBar(max int, description ...string) *progressbar.ProgressBar {
 func SafeJoin(basePath string, unsafePath string) string {
 	return filepath.Join(basePath, filepath.Join("/", unsafePath))
 }
+
+func MergePaths(sourcePath string, destPath string) error {
+	return filepath.Walk(sourcePath, func(sourceFile string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, err := filepath.Rel(sourcePath, sourceFile)
+		if err != nil {
+			return err
+		}
+		if rel == "." {
+			return nil
+		}
+		destPath := filepath.Join(destPath, rel)
+		destStat, err := os.Stat(destPath)
+		if os.IsNotExist(err) || (err == nil && destStat.Mode().IsRegular()) {
+			return os.Rename(sourceFile, destPath)
+		} else if err != nil {
+			return err
+		}
+		return nil
+	})
+}

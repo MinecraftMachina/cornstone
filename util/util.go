@@ -12,34 +12,34 @@ func JsonMarshalPretty(v interface{}) ([]byte, error) {
 	return json.MarshalIndent(v, "", "  ")
 }
 
-func EnsureDirectoryExists(path string, name string) {
+func EnsureDirectoryExists(path string, printString string) {
 	stat, err := os.Stat(path)
 	if err == nil {
 		if stat.IsDir() {
 			return
 		} else {
-			log.Fatal("Path for ", name, " isn't a directory")
+			log.Fatal("Path for ", printString, " isn't a directory")
 		}
 	}
 	if os.IsNotExist(err) {
-		log.Fatal("Path for ", name, " doesn't exist")
+		log.Fatal("Path for ", printString, " doesn't exist")
 	}
-	log.Fatal("Error accessing path for ", name)
+	log.Fatal("Error accessing path for ", printString)
 }
 
-func EnsureFileExists(path string, name string) {
+func EnsureFileExists(path string, printString string) {
 	stat, err := os.Stat(path)
 	if err == nil {
 		if stat.Mode().IsRegular() {
 			return
 		} else {
-			log.Fatal("Path for ", name, " isn't a regular file")
+			log.Fatal("Path for ", printString, " isn't a regular file")
 		}
 	}
 	if os.IsNotExist(err) {
-		log.Fatal("Path for ", name, " doesn't exist")
+		log.Fatal("Path for ", printString, " doesn't exist")
 	}
-	log.Fatal("Error accessing path for ", name)
+	log.Fatal("Error accessing path for ", printString)
 }
 
 func NewBar(max int, description ...string) *progressbar.ProgressBar {

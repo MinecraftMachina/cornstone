@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const SizeDivisor = 1_000_000 // 1MB
+
 type MultiDownloader struct {
 	requests []*grab.Request
 	workers  int
@@ -45,7 +47,7 @@ func (s *MultiDownloader) handleMultiFile(result <-chan *grab.Response) error {
 
 func (s *MultiDownloader) handleSingleFile(result <-chan *grab.Response) error {
 	response := <-result
-	barSize := int(response.Size() / 1000)
+	barSize := int(response.Size() / SizeDivisor)
 	if barSize < 1 {
 		// spinner mode
 		barSize = -1
@@ -61,7 +63,7 @@ Loop:
 	for {
 		select {
 		case <-t.C:
-			bar.Set(int(response.BytesComplete() / 1000))
+			bar.Set(int(response.BytesComplete() / SizeDivisor))
 		case <-response.Done:
 			break Loop
 		}

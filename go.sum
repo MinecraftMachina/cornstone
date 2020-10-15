@@ -20,8 +20,8 @@ github.com/Masterminds/semver v1.5.0/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF0
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/OpenPeeDeeP/depguard v1.0.1/go.mod h1:xsIw86fROiiwelg+jB2uM9PiKihMMmUx/1V+TNhjQvM=
 github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
-github.com/ViRb3/grab v1.0.0-new h1:pNcGNog4jt6cBaLXpFUre2Pg2FwUeWJUj4SAZswcEzE=
-github.com/ViRb3/grab v1.0.0-new/go.mod h1:NbXoa59CCAGqtRm7kRrcZIk2dTCJMRVF8QI3BOD7isY=
+github.com/ViRb3/grab v1.0.1-new h1:u5cQHg4Cm6ICxRKrDLWP56h1ND+k3HR4Lrxw6OeQ884=
+github.com/ViRb3/grab v1.0.1-new/go.mod h1:NbXoa59CCAGqtRm7kRrcZIk2dTCJMRVF8QI3BOD7isY=
 github.com/ViRb3/sling v1.3.0-fork h1:qrrFWT+5OsJZMO/s0bgXIZ5BlhWGCCyADepumcwsJPM=
 github.com/ViRb3/sling v1.3.0-fork/go.mod h1:XXShWaBWKzNLhu2OxikSNFrlsvowtz4kyRuXUG7oQKY=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=

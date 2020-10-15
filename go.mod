@@ -2,9 +2,11 @@ module cornstone
 
 go 1.15
 
-replace github.com/dghubble/sling v1.3.0 => github.com/ViRb3/sling v1.3.0-fork
+replace github.com/dghubble/sling v1.3.0 => github.com/ViRb3/sling v1.3.0-new
 
 replace github.com/cavaliercoder/grab v2.0.0+incompatible => github.com/ViRb3/grab v1.0.1-new
+
+replace github.com/schollz/progressbar/v3 v3.6.0 => github.com/ViRb3/progressbar/v3 v3.6.1-new
 
 require (
 	github.com/cavaliercoder/grab v2.0.0+incompatible

@@ -7,7 +7,6 @@ import (
 	"cornstone/util"
 	"encoding/json"
 	"github.com/cavaliercoder/grab"
-	"github.com/mholt/archiver/v3"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -254,10 +253,9 @@ func createInstanceConfig(manifest *curseforge.CornManifest, stagingPath string)
 }
 
 func stageModpack(stagingPath string) error {
-	zipper := archiver.NewZip()
 	if _, err := os.Stat(input); err != nil {
 		log.Println("Downloading modpack...")
-		if err := util.DownloadAndExtract(profile.NewWalker(), input, util.ExtractCommonConfig{
+		if err := util.DownloadAndExtract(input, util.ExtractCommonConfig{
 			BasePath: "",
 			DestPath: stagingPath,
 			Unwrap:   unwrap,
@@ -266,7 +264,7 @@ func stageModpack(stagingPath string) error {
 		}
 	} else {
 		log.Println("Extracting modpack...")
-		if err := util.ExtractArchiveFromFile(zipper, util.ExtractFileConfig{
+		if err := util.ExtractArchiveFromFile(util.ExtractFileConfig{
 			ArchivePath: input,
 			Common: util.ExtractCommonConfig{
 				BasePath: "",

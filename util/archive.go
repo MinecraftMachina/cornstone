@@ -5,6 +5,8 @@ import (
 	"archive/zip"
 	"bytes"
 	"github.com/cavaliercoder/grab"
+	"github.com/h2non/filetype"
+	"github.com/h2non/filetype/matchers"
 	"github.com/mholt/archiver/v3"
 	"github.com/pkg/errors"
 	"io"
@@ -26,6 +28,7 @@ type ExtractReaderConfig struct {
 }
 
 type ExtractCommonConfig struct {
+	// All archive files not a child of BasePath will be skipped.
 	BasePath string
 	DestPath string
 	Unwrap   bool
@@ -39,6 +42,28 @@ func getFileFullNameFromHeader(file archiver.File) (string, error) {
 		return file.Header.(*tar.Header).Name, nil
 	default:
 		return "", errors.New("unsupported header type")
+	}
+}
+
+type extractor interface {
+	archiver.Walker
+	archiver.Reader
+}
+
+func createExtractor(header []byte) (extractor, error) {
+	kind, err := filetype.Match(header)
+	if err != nil {
+		return nil, err
+	}
+	switch kind {
+	case matchers.TypeZip:
+		return archiver.NewZip(), nil
+	case matchers.TypeGz:
+		return archiver.NewTarGz(), nil // TODO: Don't assume .tar.gz
+	case matchers.TypeTar:
+		return archiver.NewTar(), nil
+	default:
+		return nil, errors.New("unsupported archive type: " + kind.Extension)
 	}
 }
 
@@ -83,9 +108,21 @@ func processFile(file archiver.File, config ExtractCommonConfig) error {
 	return nil
 }
 
-//ExtractArchiveFromReader: All files not a child of basePath will be skipped.
-func ExtractArchiveFromFile(walker archiver.Walker, config ExtractFileConfig) error {
-	if err := walker.Walk(config.ArchivePath, func(file archiver.File) error {
+func ExtractArchiveFromFile(config ExtractFileConfig) error {
+	file, err := os.Open(config.ArchivePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	header := make([]byte, 261)
+	if _, err := file.Read(header); err != nil {
+		return err
+	}
+	extractor, err := createExtractor(header)
+	if err != nil {
+		return err
+	}
+	if err := extractor.Walk(config.ArchivePath, func(file archiver.File) error {
 		return processFile(file, config.Common)
 	}); err != nil {
 		return err
@@ -93,13 +130,23 @@ func ExtractArchiveFromFile(walker archiver.Walker, config ExtractFileConfig) er
 	return nil
 }
 
-//ExtractArchiveFromReader: All files not a child of basePath will be skipped.
-func ExtractArchiveFromReader(reader archiver.Reader, config ExtractReaderConfig) error {
-	if err := reader.Open(config.Data, int64(config.Data.Len())); err != nil {
+func ExtractArchiveFromReader(config ExtractReaderConfig) error {
+	header := make([]byte, 261)
+	if _, err := config.Data.Read(header); err != nil {
+		return err
+	}
+	if _, err := config.Data.Seek(0, io.SeekStart); err != nil {
+		return err
+	}
+	extractor, err := createExtractor(header)
+	if err != nil {
+		return err
+	}
+	if err := extractor.Open(config.Data, int64(config.Data.Len())); err != nil {
 		return err
 	}
 	for {
-		file, err := reader.Read()
+		file, err := extractor.Read()
 		if err == io.EOF {
 			break
 		} else if err != nil {
@@ -112,13 +159,15 @@ func ExtractArchiveFromReader(reader archiver.Reader, config ExtractReaderConfig
 	return nil
 }
 
-func DownloadAndExtract(walker archiver.Walker, downloadUrl string, config ExtractCommonConfig) error {
+func DownloadAndExtract(downloadUrl string, config ExtractCommonConfig) error {
 	tempFile, err := ioutil.TempFile(os.TempDir(), "cornstone")
 	if err != nil {
 		return err
 	}
 	tempFilePath := tempFile.Name()
-	tempFile.Close()
+	if err := tempFile.Close(); err != nil {
+		return err
+	}
 	defer os.Remove(tempFilePath)
 
 	request, err := grab.NewRequest(tempFilePath, downloadUrl)
@@ -128,7 +177,7 @@ func DownloadAndExtract(walker archiver.Walker, downloadUrl string, config Extra
 	if err := NewMultiDownloader(1, request).Do(); err != nil {
 		return err
 	}
-	if err := ExtractArchiveFromFile(walker, ExtractFileConfig{
+	if err := ExtractArchiveFromFile(ExtractFileConfig{
 		ArchivePath: tempFilePath,
 		Common:      config,
 	}); err != nil {

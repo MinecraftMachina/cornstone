@@ -9,6 +9,7 @@ replace github.com/cavaliercoder/grab v2.0.0+incompatible => github.com/ViRb3/gr
 require (
 	github.com/cavaliercoder/grab v2.0.0+incompatible
 	github.com/dghubble/sling v1.3.0
+	github.com/h2non/filetype v1.1.0
 	github.com/mholt/archiver/v3 v3.3.2
 	github.com/pkg/errors v0.9.1
 	github.com/schollz/progressbar/v3 v3.6.0

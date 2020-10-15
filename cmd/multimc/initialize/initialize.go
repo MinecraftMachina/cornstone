@@ -67,7 +67,7 @@ func execute() error {
 	}
 
 	log.Println("Downloading MultiMC...")
-	if err := util.DownloadAndExtract(profile.NewWalker(), downloadUrl, util.ExtractCommonConfig{
+	if err := util.DownloadAndExtract(downloadUrl, util.ExtractCommonConfig{
 		BasePath: "",
 		DestPath: destPath,
 		Unwrap:   true,
@@ -81,7 +81,7 @@ func execute() error {
 		if err := os.MkdirAll(javaPath, 755); err != nil {
 			return err
 		}
-		if err := util.DownloadAndExtract(profile.NewWalker(), profile.JavaUrl, util.ExtractCommonConfig{
+		if err := util.DownloadAndExtract(profile.JavaUrl, util.ExtractCommonConfig{
 			BasePath: "",
 			DestPath: javaPath,
 			Unwrap:   true,

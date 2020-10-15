@@ -37,7 +37,7 @@ var Cmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		util.EnsureDirectoryExists(destPath, "MultiMC")
 		if err := execute(); err != nil {
-			log.Fatal(err)
+			log.Fatal(e.P(err))
 		}
 	},
 }
@@ -281,11 +281,11 @@ func stageModpack(stagingPath string) error {
 func init() {
 	Cmd.Flags().StringVarP(&input, "input", "i", "", "File path or URL to corn-manifest modpack")
 	if err := Cmd.MarkFlagRequired("input"); err != nil {
-		log.Fatal(err)
+		log.Fatal(e.P(err))
 	}
 	Cmd.Flags().BoolVarP(&unwrap, "unwrap", "u", false, "Discard the root directory of the archive wwhen extracting")
 	Cmd.Flags().StringVarP(&name, "name", "n", "", "Name to use for modpack when importing to MultiMC")
 	if err := Cmd.MarkFlagRequired("name"); err != nil {
-		log.Fatal(err)
+		log.Fatal(e.P(err))
 	}
 }

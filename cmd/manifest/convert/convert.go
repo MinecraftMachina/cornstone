@@ -29,7 +29,7 @@ var Cmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := execute(); err != nil {
-			log.Fatal(err)
+			log.Fatal(e.P(err))
 		}
 	},
 }

@@ -33,11 +33,11 @@ var Cmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := validateMultiMCPath(); err != nil {
-			log.Fatal(err)
+			log.Fatal(e.P(err))
 		}
 		if err := execute(); err != nil {
 			os.RemoveAll(multimcPath)
-			log.Fatal(err)
+			log.Fatal(e.P(err))
 		}
 	},
 }

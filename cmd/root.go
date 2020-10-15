@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"cornstone/aliases/e"
 	"cornstone/cmd/manifest"
 	"cornstone/cmd/multimc"
 	"log"
@@ -23,7 +24,7 @@ func Execute() error {
 func init() {
 	cmd.PersistentFlags().IntVarP(&concurrentCount, "concurrent-count", "c", 5, "Concurrent download count")
 	if err := viper.BindPFlag("concurrentCount", cmd.PersistentFlags().Lookup("concurrent-count")); err != nil {
-		log.Fatal(err)
+		log.Fatal(e.P(err))
 	}
 
 	cmd.AddCommand(manifest.Cmd)

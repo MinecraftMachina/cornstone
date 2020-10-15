@@ -1,6 +1,7 @@
 package multimc
 
 import (
+	"cornstone/aliases/e"
 	"cornstone/cmd/multimc/initialize"
 	"cornstone/cmd/multimc/install"
 	"cornstone/cmd/multimc/dev"
@@ -31,7 +32,7 @@ func validateMultiMCPath() {
 	if os.IsNotExist(err) {
 		return
 	} else if err != nil {
-		log.Fatal(err)
+		log.Fatal(e.P(err))
 	}
 	if !stat.IsDir() {
 		log.Fatal("supplied path is not a directory")
@@ -41,14 +42,14 @@ func validateMultiMCPath() {
 func init() {
 	Cmd.PersistentFlags().StringVarP(&multimcPath, "multimc-path", "m", "", "Path to MultiMC root directory")
 	if err := Cmd.MarkPersistentFlagRequired("multimc-path"); err != nil {
-		log.Fatal(err)
+		log.Fatal(e.P(err))
 	}
 	if err := viper.BindPFlag("multimcPath", Cmd.PersistentFlags().Lookup("multimc-path")); err != nil {
-		log.Fatal(err)
+		log.Fatal(e.P(err))
 	}
 	profile, err := multimc.GetOSProfile()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(e.P(err))
 	}
 	viper.Set("profile", profile)
 

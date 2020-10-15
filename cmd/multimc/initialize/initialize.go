@@ -15,6 +15,7 @@ import (
 	"runtime"
 )
 
+var multimcPath string
 var destPath string
 var profile *multimc.OSProfile
 var dev bool
@@ -25,8 +26,9 @@ var Cmd = &cobra.Command{
 	Use:   "init",
 	Short: "Download and initialize MultiMC with Java bundled",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		destPath = viper.GetString("multimcPath")
+		multimcPath = viper.GetString("multimcPath")
 		profile = viper.Get("profile").(*multimc.OSProfile)
+		destPath = filepath.Join(multimcPath, filepath.Dir(profile.BinaryPath))
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := execute(); err != nil {
@@ -36,14 +38,14 @@ var Cmd = &cobra.Command{
 }
 
 func validateMultiMCPath() error {
-	if _, err := os.Stat(destPath); os.IsNotExist(err) {
-		if err := os.MkdirAll(destPath, 755); err != nil {
+	if _, err := os.Stat(multimcPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(multimcPath, 755); err != nil {
 			return nil
 		}
 	} else if err != nil {
 		return err
 	} else {
-		files, err := ioutil.ReadDir(destPath)
+		files, err := ioutil.ReadDir(multimcPath)
 		if err != nil {
 			return err
 		}
@@ -69,7 +71,7 @@ func execute() error {
 	log.Println("Downloading MultiMC...")
 	if err := util.DownloadAndExtract(downloadUrl, util.ExtractCommonConfig{
 		BasePath: "",
-		DestPath: destPath,
+		DestPath: multimcPath,
 		Unwrap:   true,
 	}); err != nil {
 		return err
@@ -92,7 +94,7 @@ func execute() error {
 
 	var javaPath string
 	if noJava {
-		javaPath = "javaw"
+		javaPath = "java"
 	} else {
 		javaPath = filepath.Join("java", profile.JavaBinaryPath)
 	}
@@ -112,7 +114,7 @@ func execute() error {
 	if runtime.GOOS == "darwin" {
 		log.Println("Applying post-fixes...")
 		// Remove all files from quarantine or user will have to approve each bin and lib individually
-		cmd := exec.Command("sh", "-c", fmt.Sprintf("sudo xattr -r -d com.apple.quarantine \"%s\"", destPath))
+		cmd := exec.Command("sh", "-c", fmt.Sprintf("sudo xattr -r -d com.apple.quarantine \"%s\"", multimcPath))
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
 		if err := cmd.Run(); err != nil {

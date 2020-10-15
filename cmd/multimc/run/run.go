@@ -19,9 +19,9 @@ var Cmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run an existing MultiMC",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		binaryPath = viper.GetString("multimcPath")
+		multimcPath := viper.GetString("multimcPath")
 		profile = viper.Get("profile").(*multimc.OSProfile)
-		binaryPath = filepath.Join(binaryPath, profile.BinaryPath)
+		binaryPath = filepath.Join(multimcPath, profile.BinaryPath)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := execute(); err != nil {

@@ -89,7 +89,7 @@ func execute() error {
 	if err != nil {
 		return e.S(err)
 	}
-	if err := ioutil.WriteFile(manifestOutput, cornManifestBytes, 644); err != nil {
+	if err := ioutil.WriteFile(manifestOutput, cornManifestBytes, 666); err != nil {
 		return e.S(err)
 	}
 	log.Println("Done! Saved to: " + manifestOutput)

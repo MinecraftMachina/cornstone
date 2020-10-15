@@ -44,7 +44,7 @@ var Cmd = &cobra.Command{
 
 func validateMultiMCPath() error {
 	if _, err := os.Stat(multimcPath); os.IsNotExist(err) {
-		if err := os.MkdirAll(multimcPath, 755); err != nil {
+		if err := os.MkdirAll(multimcPath, 777); err != nil {
 			return nil
 		}
 	} else if err != nil {
@@ -81,7 +81,7 @@ func execute() error {
 	if !noJava {
 		log.Println("Downloading Java...")
 		javaPath := filepath.Join(destPath, "java")
-		if err := os.MkdirAll(javaPath, 755); err != nil {
+		if err := os.MkdirAll(javaPath, 777); err != nil {
 			return e.S(err)
 		}
 		if err := util.DownloadAndExtract(profile.JavaUrl, util.ExtractCommonConfig{
@@ -108,7 +108,7 @@ func execute() error {
 	if err != nil {
 		return e.S(err)
 	}
-	if err := ioutil.WriteFile(filepath.Join(destPath, "multimc.cfg"), []byte(config), 644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(destPath, "multimc.cfg"), []byte(config), 666); err != nil {
 		return e.S(err)
 	}
 

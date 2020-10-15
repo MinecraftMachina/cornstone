@@ -68,8 +68,5 @@ Loop:
 			break Loop
 		}
 	}
-	if err := response.Err(); err != nil {
-		return err
-	}
-	return nil
+	return response.Err()
 }

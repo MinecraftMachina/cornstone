@@ -39,19 +39,18 @@ func (t *Throttler) Run() <-chan Result {
 	go func() {
 		for i := range t.Source {
 			if t.Ctx.Err() != nil {
-				return
-			}
-			sourceItem := t.Source[i]
-			throttleChan <- true
-			go func() {
-				defer func() {
+				wg.Done()
+			} else {
+				throttleChan <- true
+				go func() {
+					sourceItem := t.Source[i]
+					result, err := t.Operation(sourceItem)
+					resultChan <- Result{Data: result, Error: err}
+					bar.Add(1)
 					wg.Done()
 					<-throttleChan
-					bar.Add(1)
 				}()
-				result, err := t.Operation(sourceItem)
-				resultChan <- Result{Data: result, Error: err}
-			}()
+			}
 		}
 	}()
 

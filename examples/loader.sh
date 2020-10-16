@@ -14,6 +14,7 @@ MODPACK_URL="https://github.com/MinecraftMachina/valhelsia-2-corn/archive/master
 if [ ! -f "cornstone" ]; then
     echo "Downloading loader..."
     curl -L -s "$CORNSTONE_URL" -o "cornstone"
+    chmod +x cornstone
 fi
 
 function MENU {

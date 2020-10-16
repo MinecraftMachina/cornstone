@@ -46,11 +46,11 @@ cornstone multimc -m "MultiMC" install -u -n "%MODPACK_NAME%" -i "%MODPACK_URL%"
 GOTO :MENU
 
 :PLAY
-cornstone multimc -m "MultiMC" run
+cornstone multimc -m "MultiMC" run || GOTO :ERROR
 GOTO :EXIT
 
 :OFFLINE
-cornstone multimc -m "MultiMC" offline
+cornstone multimc -m "MultiMC" offline || GOTO :ERROR
 GOTO :PLAY
 
 :EXIT

@@ -66,6 +66,8 @@ function OFFLINE {
 }
 
 function EXIT {
+    echo "Failed with error $?"
+    read -n1 -r -p "Press any key to continue..." key
     exit
 }
 

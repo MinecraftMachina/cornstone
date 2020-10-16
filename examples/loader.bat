@@ -7,7 +7,7 @@ rem ============================================================================
 SET "MODPACK_NAME=Valhelsia2"
 SET "MODPACK_URL=https://github.com/MinecraftMachina/valhelsia-2-corn/archive/master.zip"
 
-SET "CORNSTONE_VERSION=1.0.2"
+SET "CORNSTONE_VERSION=1.0.3"
 SET "CORNSTONE_FILE=%CD%\cornstone-%MODPACK_NAME%.exe"
 SET "LAUNCHER_DIR=%CD%\corn-%MODPACK_NAME%"
 

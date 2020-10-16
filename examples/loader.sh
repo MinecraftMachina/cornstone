@@ -7,7 +7,7 @@
 MODPACK_NAME="Valhelsia2"
 MODPACK_URL="https://github.com/MinecraftMachina/valhelsia-2-corn/archive/master.zip"
 
-CORNSTONE_VERSION="1.0.2"
+CORNSTONE_VERSION="1.0.3"
 CORNSTONE_FILE="$PWD/cornstone-$MODPACK_NAME"
 LAUNCHER_DIR="$PWD/corn-$MODPACK_NAME"
 

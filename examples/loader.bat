@@ -59,6 +59,6 @@ GOTO :PLAY
 exit
 
 :ERROR
-ECHO Failed with error #%errorlevel%
+ECHO Failed with error %errorlevel%
 pause
-exit /b %errorlevel%
+GOTO :EXIT

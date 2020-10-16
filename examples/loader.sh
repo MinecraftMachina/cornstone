@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 # ======================================================================================================
 # USER CONFIGURATION
@@ -51,26 +50,30 @@ function MENU {
 
 function INSTALL {
     if [ ! -d "MultiMC" ]; then
-        $PWD/cornstone multimc -m "MultiMC" init
+        $PWD/cornstone multimc -m "MultiMC" init || ERROR
     fi
-    $PWD/cornstone multimc -m "MultiMC" install -u -n "$MODPACK_NAME" -i "$MODPACK_URL"
+    $PWD/cornstone multimc -m "MultiMC" install -u -n "$MODPACK_NAME" -i "$MODPACK_URL" || ERROR
     MENU
 }
 
 function PLAY {
-    $PWD/cornstone multimc -m "MultiMC" run
-    MENU
+    $PWD/cornstone multimc -m "MultiMC" run || ERROR
+    EXIT
 }
 
 function OFFLINE {
-    $PWD/cornstone multimc -m "MultiMC" offline
+    $PWD/cornstone multimc -m "MultiMC" offline || ERROR
     PLAY
 }
 
 function EXIT {
+    exit 1
+}
+
+function ERROR {
     echo "Failed with error $?"
     read -n1 -r -p "Press any key to continue..." key
-    exit
+    EXIT
 }
 
 MENU

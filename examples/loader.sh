@@ -2,15 +2,16 @@
 set -e
 
 # ======================================================================================================
-# CONFIGURATION
+# USER CONFIGURATION
 # ======================================================================================================
 
-CORNSTONE_VERSION="v1.0.1"
-CORNSTONE_URL="https://github.com/MinecraftMachina/cornstone/releases/download/${CORNSTONE_VERSION}/cornstone_${CORNSTONE_VERSION}_linux_amd64"
 MODPACK_NAME="Valhelsia 2"
 MODPACK_URL="https://github.com/MinecraftMachina/valhelsia-2-corn/archive/master.zip"
 
 # ======================================================================================================
+
+CORNSTONE_VERSION="v1.0.1"
+CORNSTONE_URL="https://github.com/MinecraftMachina/cornstone/releases/download/${CORNSTONE_VERSION}/cornstone_${CORNSTONE_VERSION}_linux_amd64"
 
 if [ ! -f "cornstone" ]; then
     echo "Downloading loader..."

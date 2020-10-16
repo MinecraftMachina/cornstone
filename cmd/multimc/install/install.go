@@ -52,7 +52,7 @@ var forgeMap = map[string]string{
 // ref: https://github.com/MultiMC/MultiMC5/blob/develop/api/logic/InstanceImportTask.cpp
 func execute() error {
 	instancePath := filepath.Join(destPath, "instances", name)
-	if err := os.MkdirAll(instancePath, 777); err != nil {
+	if err := os.MkdirAll(instancePath, 0777); err != nil {
 		return e.S(err)
 	}
 
@@ -89,7 +89,7 @@ func execute() error {
 func downloadMods(manifest *curseforge.CornManifest, stagingPath string) error {
 	minecraftPath := filepath.Join(stagingPath, "minecraft")
 	modsPath := filepath.Join(stagingPath, "minecraft", "mods")
-	if err := os.MkdirAll(modsPath, 777); err != nil {
+	if err := os.MkdirAll(modsPath, 0777); err != nil {
 		return err
 	}
 
@@ -227,7 +227,7 @@ func createPackFile(manifest *curseforge.CornManifest, stagingPath string) error
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(packPath, packBytes, 666); err != nil {
+	if err := ioutil.WriteFile(packPath, packBytes, 0666); err != nil {
 		return err
 	}
 	return nil
@@ -260,7 +260,7 @@ func createInstanceConfig(manifest *curseforge.CornManifest, stagingPath string)
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(instanceConfigPath, []byte(instanceConfig), 666); err != nil {
+	if err := ioutil.WriteFile(instanceConfigPath, []byte(instanceConfig), 0666); err != nil {
 		return err
 	}
 	return nil

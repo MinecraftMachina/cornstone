@@ -9,8 +9,8 @@ SET "MODPACK_URL=https://github.com/MinecraftMachina/valhelsia-2-corn/archive/ma
 
 rem ======================================================================================================
 
-SET "CORNSTONE_VERSION=v1.0.1"
-SET "CORNSTONE_URL=https://github.com/MinecraftMachina/cornstone/releases/download/%CORNSTONE_VERSION%/cornstone_%CORNSTONE_VERSION%_windows_amd64.exe"
+SET "CORNSTONE_VERSION=1.0.1"
+SET "CORNSTONE_URL=https://github.com/MinecraftMachina/cornstone/releases/download/v%CORNSTONE_VERSION%/cornstone_%CORNSTONE_VERSION%_windows_amd64.exe"
 
 IF NOT EXIST "cornstone.exe" (
     ECHO Downloading loader...

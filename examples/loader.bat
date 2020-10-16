@@ -31,7 +31,8 @@ ECHO.
 ECHO  1 - Install or update
 ECHO  2 - Play
 ECHO  3 - Add offline account
-ECHO  4 - Exit
+ECHO  4 - Reset
+ECHO  5 - Exit
 ECHO.
 
 SET /P M=Type a number then press ENTER: 
@@ -40,7 +41,8 @@ CLS
 IF %M%==1 GOTO :INSTALL
 IF %M%==2 GOTO :PLAY
 IF %M%==3 GOTO :OFFLINE
-IF %M%==4 GOTO :EXIT
+IF %M%==4 GOTO :RESET
+IF %M%==5 GOTO :EXIT
 GOTO :MENU
 
 :INSTALL
@@ -59,6 +61,14 @@ GOTO :EXIT
 "%CORNSTONE_FILE%" multimc -m "%LAUNCHER_DIR%" offline || GOTO :ERROR
 pause
 GOTO :MENU
+
+:RESET
+ECHO.
+ECHO WARNING: This will delete the modpack with all your data!
+ECHO.
+pause
+rd /s /q "%LAUNCHER_DIR%" || GOTO :ERROR
+GOTO :INSTALL
 
 :EXIT
 exit

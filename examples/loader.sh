@@ -36,8 +36,9 @@ function MENU {
     echo " 1 - Install or update"
     echo " 2 - Play"
     echo " 3 - Add offline account"
-    echo " 4 - Exit"
-    echo "" 
+    echo " 4 - Reset"
+    echo " 5 - Exit"
+    echo ""
     read -p $'Type a number then press ENTER: ' CHOICE
 
     clear
@@ -50,6 +51,8 @@ function MENU {
         "3")
             OFFLINE ;;
         "4")
+            RESET ;;
+        "5")
             EXIT ;;
         *) ;;
     esac
@@ -71,6 +74,15 @@ function PLAY {
 function OFFLINE {
     "$CORNSTONE_FILE" multimc -m "$LAUNCHER_DIR" offline || ERROR
     pause
+}
+
+function RESET {
+    echo ""
+    echo "WARNING: This will delete the modpack with all your data!"
+    echo ""
+    pause
+    rm -rf "$LAUNCHER_DIR" || ERROR
+    INSTALL
 }
 
 function EXIT {

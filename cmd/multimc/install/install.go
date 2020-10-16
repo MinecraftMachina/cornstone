@@ -56,7 +56,6 @@ func execute() error {
 		return e.S(err)
 	}
 
-	log.Println("Staging modpack...")
 	if err := stageModpack(instancePath); err != nil {
 		return e.S(err)
 	}

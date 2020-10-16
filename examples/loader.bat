@@ -3,8 +3,8 @@
 rem ======================================================================================================
 rem CONFIGURATION
 rem ======================================================================================================
-
-SET "CORNSTONE_URL=https://github.com/MinecraftMachina/cornstone/releases/download/v1.0.0/cornstone_1.0.0_windows_amd64.exe"
+SET "CORNSTONE_VERSION=v1.0.1"
+SET "CORNSTONE_URL=https://github.com/MinecraftMachina/cornstone/releases/download/%CORNSTONE_VERSION%/cornstone_%CORNSTONE_VERSION%_windows_amd64.exe"
 SET "MODPACK_NAME=Valhelsia 2"
 SET "MODPACK_URL=https://github.com/MinecraftMachina/valhelsia-2-corn/archive/master.zip"
 

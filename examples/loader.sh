@@ -5,7 +5,8 @@ set -e
 # CONFIGURATION
 # ======================================================================================================
 
-CORNSTONE_URL="https://github.com/MinecraftMachina/cornstone/releases/download/v1.0.0/cornstone_1.0.0_linux_amd64"
+CORNSTONE_VERSION="v1.0.1"
+CORNSTONE_URL="https://github.com/MinecraftMachina/cornstone/releases/download/${CORNSTONE_VERSION}/cornstone_${CORNSTONE_VERSION}_linux_amd64"
 MODPACK_NAME="Valhelsia 2"
 MODPACK_URL="https://github.com/MinecraftMachina/valhelsia-2-corn/archive/master.zip"
 

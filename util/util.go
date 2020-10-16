@@ -18,13 +18,13 @@ func EnsureDirectoryExists(path string, printString string) {
 		if stat.IsDir() {
 			return
 		} else {
-			log.Fatalln("Path for ", printString, " isn't a directory")
+			log.Fatalln("Path for", printString, "isn't a directory")
 		}
 	}
 	if os.IsNotExist(err) {
-		log.Fatalln("Path for ", printString, " doesn't exist")
+		log.Fatalln("Path for", printString, "doesn't exist")
 	}
-	log.Fatalln("Error accessing path for ", printString)
+	log.Fatalln("Error accessing path for", printString)
 }
 
 func EnsureFileExists(path string, printString string) {
@@ -33,13 +33,13 @@ func EnsureFileExists(path string, printString string) {
 		if stat.Mode().IsRegular() {
 			return
 		} else {
-			log.Fatalln("Path for ", printString, " isn't a regular file")
+			log.Fatalln("Path for", printString, "isn't a regular file")
 		}
 	}
 	if os.IsNotExist(err) {
-		log.Fatalln("Path for ", printString, " doesn't exist")
+		log.Fatalln("Path for", printString, "doesn't exist")
 	}
-	log.Fatalln("Error accessing path for ", printString)
+	log.Fatalln("Error accessing path for", printString)
 }
 
 func NewBar(max int, description ...string) *progressbar.ProgressBar {

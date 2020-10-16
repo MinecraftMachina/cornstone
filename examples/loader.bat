@@ -4,17 +4,20 @@ rem ============================================================================
 rem USER CONFIGURATION
 rem ======================================================================================================
 
-SET "MODPACK_NAME=Valhelsia 2"
+SET "MODPACK_NAME=Valhelsia2"
 SET "MODPACK_URL=https://github.com/MinecraftMachina/valhelsia-2-corn/archive/master.zip"
+
+SET "CORNSTONE_VERSION=1.0.2"
+SET "CORNSTONE_FILE=%CD%\cornstone-%MODPACK_NAME%.exe"
+SET "LAUNCHER_DIR=%CD%\corn-%MODPACK_NAME%"
 
 rem ======================================================================================================
 
-SET "CORNSTONE_VERSION=1.0.1"
 SET "CORNSTONE_URL=https://github.com/MinecraftMachina/cornstone/releases/download/v%CORNSTONE_VERSION%/cornstone_%CORNSTONE_VERSION%_windows_amd64.exe"
 
-IF NOT EXIST "cornstone.exe" (
+IF NOT EXIST "%CORNSTONE_FILE%" (
     ECHO Downloading loader...
-    powershell -Command "(New-Object Net.WebClient).DownloadFile('%CORNSTONE_URL%', '%~dp0cornstone.exe')" || GOTO :ERROR
+    powershell -Command "(New-Object Net.WebClient).DownloadFile('%CORNSTONE_URL%', '%CORNSTONE_FILE%')" || GOTO :ERROR
 )
 
 :MENU
@@ -27,7 +30,7 @@ ECHO ...............................................
 ECHO.
 ECHO  1 - Install or update
 ECHO  2 - Play
-ECHO  3 - Play offline
+ECHO  3 - Add offline account
 ECHO  4 - Exit
 ECHO.
 
@@ -41,19 +44,21 @@ IF %M%==4 GOTO :EXIT
 GOTO :MENU
 
 :INSTALL
-IF NOT EXIST "MultiMC" (
-    cornstone multimc -m "MultiMC" init || GOTO :ERROR
+IF NOT EXIST "%LAUNCHER_DIR%" (
+    "%CORNSTONE_FILE%" multimc -m "%LAUNCHER_DIR%" init || GOTO :ERROR
 )
-cornstone multimc -m "MultiMC" install -u -n "%MODPACK_NAME%" -i "%MODPACK_URL%" || GOTO :ERROR
+"%CORNSTONE_FILE%" multimc -m "%LAUNCHER_DIR%" install -u -n "%MODPACK_NAME%" -i "%MODPACK_URL%" || GOTO :ERROR
+pause
 GOTO :MENU
 
 :PLAY
-cornstone multimc -m "MultiMC" run || GOTO :ERROR
+"%CORNSTONE_FILE%" multimc -m "%LAUNCHER_DIR%" run || GOTO :ERROR
 GOTO :EXIT
 
 :OFFLINE
-cornstone multimc -m "MultiMC" offline || GOTO :ERROR
-GOTO :PLAY
+"%CORNSTONE_FILE%" multimc -m "%LAUNCHER_DIR%" offline || GOTO :ERROR
+pause
+GOTO :MENU
 
 :EXIT
 exit

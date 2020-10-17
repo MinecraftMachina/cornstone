@@ -217,11 +217,11 @@ func createPackFile(manifest *curseforge.CornManifest, stagingPath string) error
 		if forgeVersion == "recommended" {
 			forgeVersion = forgeMap[mcVersion]
 		}
+		pack.Components = append(pack.Components, multimc.Component{
+			UID:     "net.minecraftforge",
+			Version: forgeVersion,
+		})
 	}
-	pack.Components = append(pack.Components, multimc.Component{
-		UID:     "net.minecraftforge",
-		Version: forgeVersion,
-	})
 
 	packBytes, err := util.JsonMarshalPretty(pack)
 	if err != nil {

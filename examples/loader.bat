@@ -6,10 +6,12 @@ rem ============================================================================
 
 SET "MODPACK_NAME=Valhelsia2"
 SET "MODPACK_URL=https://github.com/MinecraftMachina/valhelsia-2-corn/archive/master.zip"
+SET "MODPACK_SERVER_URL=https://github.com/MinecraftMachina/valhelsia-2-corn/archive/server.zip"
 
-SET "CORNSTONE_VERSION=1.0.3"
+SET "CORNSTONE_VERSION=1.1.0"
 SET "CORNSTONE_FILE=%CD%\cornstone-%MODPACK_NAME%.exe"
 SET "LAUNCHER_DIR=%CD%\corn-%MODPACK_NAME%"
+SET "SERVER_DIR=%CD%\corn-%MODPACK_NAME%-server"
 
 rem ======================================================================================================
 
@@ -32,7 +34,8 @@ ECHO  1 - Install or update
 ECHO  2 - Play
 ECHO  3 - Add offline account
 ECHO  4 - Reset
-ECHO  5 - Exit
+ECHO  5 - Install or update server
+ECHO  6 - Exit
 ECHO.
 
 SET /P M=Type a number then press ENTER: 
@@ -42,14 +45,15 @@ IF %M%==1 GOTO :INSTALL
 IF %M%==2 GOTO :PLAY
 IF %M%==3 GOTO :OFFLINE
 IF %M%==4 GOTO :RESET
-IF %M%==5 GOTO :EXIT
+IF %M%==5 GOTO :SERVER
+IF %M%==6 GOTO :EXIT
 GOTO :MENU
 
 :INSTALL
 IF NOT EXIST "%LAUNCHER_DIR%" (
     "%CORNSTONE_FILE%" multimc -m "%LAUNCHER_DIR%" init || GOTO :ERROR
 )
-"%CORNSTONE_FILE%" multimc -m "%LAUNCHER_DIR%" install -u -n "%MODPACK_NAME%" -i "%MODPACK_URL%" || GOTO :ERROR
+"%CORNSTONE_FILE%" multimc -m "%LAUNCHER_DIR%" install -n "%MODPACK_NAME%" -i "%MODPACK_URL%" || GOTO :ERROR
 pause
 GOTO :MENU
 
@@ -69,6 +73,10 @@ ECHO.
 pause
 rd /s /q "%LAUNCHER_DIR%" || GOTO :ERROR
 GOTO :INSTALL
+
+:SERVER
+"%CORNSTONE_FILE%" server -s "%SERVER_DIR%" install -i "%MODPACK_SERVER_URL%" || GOTO :ERROR
+GOTO :MENU
 
 :EXIT
 exit

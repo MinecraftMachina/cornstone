@@ -6,8 +6,9 @@
 
 MODPACK_NAME="Valhelsia2"
 MODPACK_URL="https://github.com/MinecraftMachina/valhelsia-2-corn/archive/master.zip"
+MODPACK_SERVER_URL="https://github.com/MinecraftMachina/valhelsia-2-corn/archive/server.zip"
 
-CORNSTONE_VERSION="1.0.3"
+CORNSTONE_VERSION="1.1.0"
 CORNSTONE_FILE="$PWD/cornstone-$MODPACK_NAME"
 LAUNCHER_DIR="$PWD/corn-$MODPACK_NAME"
 
@@ -37,7 +38,8 @@ function MENU {
     echo " 2 - Play"
     echo " 3 - Add offline account"
     echo " 4 - Reset"
-    echo " 5 - Exit"
+    echo " 5 - Install or update server"
+    echo " 6 - Exit"
     echo ""
     read -p $'Type a number then press ENTER: ' CHOICE
 
@@ -53,6 +55,8 @@ function MENU {
         "4")
             RESET ;;
         "5")
+            SERVER ;;
+        "6")
             EXIT ;;
         *) ;;
     esac
@@ -62,7 +66,7 @@ function INSTALL {
     if [ ! -d "$LAUNCHER_DIR" ]; then
         "$CORNSTONE_FILE" multimc -m "$LAUNCHER_DIR" init || ERROR
     fi
-    "$CORNSTONE_FILE" multimc -m "$LAUNCHER_DIR" install -u -n "$MODPACK_NAME" -i "$MODPACK_URL" || ERROR
+    "$CORNSTONE_FILE" multimc -m "$LAUNCHER_DIR" install -n "$MODPACK_NAME" -i "$MODPACK_URL" || ERROR
     pause
 }
 
@@ -83,6 +87,10 @@ function RESET {
     pause
     rm -rf "$LAUNCHER_DIR" || ERROR
     INSTALL
+}
+
+function SERVER {
+    "$CORNSTONE_FILE" server -s "$SERVER_DIR" install -i "$MODPACK_SERVER_URL" || ERROR
 }
 
 function EXIT {

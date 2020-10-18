@@ -63,7 +63,7 @@ func NewBar(max int, description ...string) *progressbar.ProgressBar {
 }
 
 func SafeJoin(basePath string, unsafePath string) string {
-	return filepath.Join(basePath, filepath.Join("/", unsafePath))
+	return filepath.Join(basePath, filepath.Clean("/"+unsafePath))
 }
 
 func MergePaths(sourcePath string, destPath string) error {

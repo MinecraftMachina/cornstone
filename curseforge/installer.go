@@ -39,10 +39,6 @@ func NewModpackInstaller(config *ModpackInstallerConfig) *ModpackInstaller {
 
 // ref: https://github.com/MultiMC/MultiMC5/blob/develop/api/logic/InstanceImportTask.cpp
 func (i *ModpackInstaller) Install() error {
-	if err := os.MkdirAll(i.DestPath, 0777); err != nil {
-		return e.S(err)
-	}
-
 	tempDir, err := ioutil.TempDir(os.TempDir(), "cornstone")
 	if err != nil {
 		return e.S(err)
@@ -54,6 +50,10 @@ func (i *ModpackInstaller) Install() error {
 	}
 	if err := i.fixWrappedModpack(tempDir); err != nil {
 		return err
+	}
+
+	if err := os.MkdirAll(i.DestPath, 0777); err != nil {
+		return e.S(err)
 	}
 	if err := util.MergePaths(tempDir, i.DestPath); err != nil {
 		return err

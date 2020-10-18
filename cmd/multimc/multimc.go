@@ -7,11 +7,9 @@ import (
 	"cornstone/cmd/multimc/dev"
 	"cornstone/cmd/multimc/run"
 	"cornstone/multimc"
-	"log"
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"log"
 )
 
 var multimcPath string
@@ -19,24 +17,6 @@ var multimcPath string
 var Cmd = &cobra.Command{
 	Use:   "multimc",
 	Short: "Operate on MultiMC installations",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		validateMultiMCPath()
-	},
-}
-
-func validateMultiMCPath() {
-	if multimcPath == "" {
-		return // let cobra prompt for the flag
-	}
-	stat, err := os.Stat(multimcPath)
-	if os.IsNotExist(err) {
-		return
-	} else if err != nil {
-		log.Fatalln(e.P(err))
-	}
-	if !stat.IsDir() {
-		log.Fatalln("supplied path is not a directory")
-	}
 }
 
 func init() {

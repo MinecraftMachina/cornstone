@@ -35,7 +35,7 @@ var Cmd = &cobra.Command{
 		destPath = filepath.Join(destPath, filepath.Dir(profile.BinaryPath))
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		util.EnsureDirectoryExists(destPath, "MultiMC")
+		util.EnsureDirectoryExists(destPath, false, false)
 		if err := execute(); err != nil {
 			log.Fatalln(e.P(err))
 		}

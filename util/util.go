@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/json"
 	"github.com/schollz/progressbar/v3"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,34 +13,48 @@ func JsonMarshalPretty(v interface{}) ([]byte, error) {
 	return json.MarshalIndent(v, "", "  ")
 }
 
-func EnsureDirectoryExists(path string, printString string) {
-	stat, err := os.Stat(path)
-	if err == nil {
-		if stat.IsDir() {
-			return
-		} else {
-			log.Fatalln("Path for", printString, "isn't a directory")
-		}
-	}
-	if os.IsNotExist(err) {
-		log.Fatalln("Path for", printString, "doesn't exist")
-	}
-	log.Fatalln("Error accessing path for", printString)
+func EnsureFileExists(path string) {
+	ensureExists(path, false, false, false)
 }
 
-func EnsureFileExists(path string, printString string) {
+func EnsureDirectoryExists(path string, mustEmpty bool, canCreate bool) {
+	ensureExists(path, true, mustEmpty, canCreate)
+}
+
+func ensureExists(path string, mustDirectory bool, mustEmpty bool, canCreate bool) {
+	fileType := "file"
+	if mustDirectory {
+		fileType = "directory"
+	}
 	stat, err := os.Stat(path)
 	if err == nil {
-		if stat.Mode().IsRegular() {
+		if stat.IsDir() && mustDirectory {
+			if mustEmpty {
+				files, err := ioutil.ReadDir(path)
+				if err != nil {
+					log.Fatalln(err)
+				}
+				if len(files) > 0 {
+					log.Fatalf("path '%s' is not empty\n", path)
+				}
+			}
+			return
+		} else if stat.Mode().IsRegular() && !mustDirectory {
 			return
 		} else {
-			log.Fatalln("Path for", printString, "isn't a regular file")
+			log.Fatalf("Path '%s' isn't a %s\n", path, fileType)
 		}
+	} else if os.IsNotExist(err) {
+		if canCreate && mustDirectory {
+			if err := os.MkdirAll(path, 0777); err != nil {
+				log.Fatalln(err)
+			}
+		} else {
+			log.Fatalf("Path '%s' doesn't exist\n", path)
+		}
+	} else {
+		log.Fatalf("Error accessing path '%s'\n", path)
 	}
-	if os.IsNotExist(err) {
-		log.Fatalln("Path for", printString, "doesn't exist")
-	}
-	log.Fatalln("Error accessing path for", printString)
 }
 
 func NewBar(max int, description ...string) *progressbar.ProgressBar {

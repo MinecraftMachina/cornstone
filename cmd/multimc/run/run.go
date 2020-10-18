@@ -25,7 +25,7 @@ var Cmd = &cobra.Command{
 		binaryPath = filepath.Join(multimcPath, profile.BinaryPath)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		util.EnsureFileExists(binaryPath, "MultiMC")
+		util.EnsureFileExists(binaryPath)
 		if err := execute(); err != nil {
 			log.Fatalln(e.P(err))
 		}

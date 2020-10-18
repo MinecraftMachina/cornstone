@@ -5,7 +5,6 @@ import (
 	"cornstone/multimc"
 	"cornstone/util"
 	"fmt"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
@@ -32,33 +31,12 @@ var Cmd = &cobra.Command{
 		destPath = filepath.Join(multimcPath, filepath.Dir(profile.BinaryPath))
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := validateMultiMCPath(); err != nil {
-			log.Fatalln(e.P(err))
-		}
+		util.EnsureDirectoryExists(multimcPath, true, true)
 		if err := execute(); err != nil {
 			os.RemoveAll(multimcPath)
 			log.Fatalln(e.P(err))
 		}
 	},
-}
-
-func validateMultiMCPath() error {
-	if _, err := os.Stat(multimcPath); os.IsNotExist(err) {
-		if err := os.MkdirAll(multimcPath, 0777); err != nil {
-			return nil
-		}
-	} else if err != nil {
-		return err
-	} else {
-		files, err := ioutil.ReadDir(multimcPath)
-		if err != nil {
-			return err
-		}
-		if len(files) > 0 {
-			return errors.New("input directory not empty")
-		}
-	}
-	return nil
 }
 
 func execute() error {

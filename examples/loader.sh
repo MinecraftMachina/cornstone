@@ -91,6 +91,7 @@ function RESET {
 
 function SERVER {
     "$CORNSTONE_FILE" server -s "$SERVER_DIR" install -i "$MODPACK_SERVER_URL" || ERROR
+    pause
 }
 
 function EXIT {

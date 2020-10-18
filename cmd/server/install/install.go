@@ -3,33 +3,29 @@ package install
 import (
 	"cornstone/aliases/e"
 	"cornstone/curseforge"
-	"cornstone/multimc"
 	"cornstone/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
-	"path/filepath"
+	"os"
 )
 
 var destPath string
-var profile *multimc.OSProfile
 var input string
-var name string
 var unwrap bool
 var concurrentCount int
 
 var Cmd = &cobra.Command{
 	Use:   "install",
-	Short: "Install a Corn or Twitch modpack from file or URL into an existing MultiMC",
+	Short: "Install a Corn or Twitch modpack from file or URL into a server",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		concurrentCount = viper.GetInt("concurrentCount")
-		destPath = viper.GetString("multimcPath")
-		profile = viper.Get("profile").(*multimc.OSProfile)
-		destPath = filepath.Join(destPath, filepath.Dir(profile.BinaryPath))
+		destPath = viper.GetString("serverPath")
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		util.EnsureDirectoryExists(destPath, false, false)
+		util.EnsureDirectoryExists(destPath, false, true)
 		if err := execute(); err != nil {
+			os.RemoveAll(destPath)
 			log.Fatalln(e.P(err))
 		}
 	},
@@ -37,11 +33,11 @@ var Cmd = &cobra.Command{
 
 func execute() error {
 	return curseforge.NewModpackInstaller(&curseforge.ModpackInstallerConfig{
-		DestPath:        filepath.Join(destPath, "instances", name),
+		DestPath:        destPath,
 		Input:           input,
 		Unwrap:          unwrap,
 		ConcurrentCount: concurrentCount,
-		TargetType:      curseforge.TargetMultiMC,
+		TargetType:      curseforge.TargetServer,
 	}).Install()
 }
 
@@ -51,8 +47,4 @@ func init() {
 		log.Fatalln(e.P(err))
 	}
 	Cmd.Flags().BoolVarP(&unwrap, "unwrap", "u", false, "Discard the root directory of the archive when extracting")
-	Cmd.Flags().StringVarP(&name, "name", "n", "", "Name to use for modpack when importing to MultiMC")
-	if err := Cmd.MarkFlagRequired("name"); err != nil {
-		log.Fatalln(e.P(err))
-	}
 }

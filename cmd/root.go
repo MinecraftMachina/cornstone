@@ -4,6 +4,7 @@ import (
 	"cornstone/aliases/e"
 	"cornstone/cmd/manifest"
 	"cornstone/cmd/multimc"
+	"cornstone/cmd/server"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -29,4 +30,5 @@ func init() {
 
 	cmd.AddCommand(manifest.Cmd)
 	cmd.AddCommand(multimc.Cmd)
+	cmd.AddCommand(server.Cmd)
 }

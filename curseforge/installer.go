@@ -49,14 +49,14 @@ func (i *ModpackInstaller) Install() error {
 		return e.S(err)
 	}
 	if err := i.fixWrappedModpack(tempDir); err != nil {
-		return err
+		return e.S(err)
 	}
 
 	if err := os.MkdirAll(i.DestPath, 0777); err != nil {
 		return e.S(err)
 	}
 	if err := util.MergePaths(tempDir, i.DestPath); err != nil {
-		return err
+		return e.S(err)
 	}
 
 	manifestFile := filepath.Join(i.DestPath, "manifest.json")
@@ -83,7 +83,7 @@ func (i *ModpackInstaller) Install() error {
 	}
 	if i.TargetType == TargetServer {
 		if err := i.processForgeServer(&manifest, i.DestPath); err != nil {
-			return err
+			return e.S(err)
 		}
 	}
 	var modsDestPath string
@@ -339,7 +339,7 @@ func (i *ModpackInstaller) stageModpack(stagingPath string) error {
 			DestPath: stagingPath,
 			Unwrap:   false,
 		}); err != nil {
-			return e.S(err)
+			return err
 		}
 	} else {
 		log.Println("Extracting modpack...")
@@ -351,7 +351,7 @@ func (i *ModpackInstaller) stageModpack(stagingPath string) error {
 				Unwrap:   false,
 			},
 		}); err != nil {
-			return e.S(err)
+			return err
 		}
 	}
 	return nil

@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -159,8 +160,7 @@ func ExtractArchiveFromReader(config ExtractReaderConfig) error {
 	return nil
 }
 
-func DownloadAndExtract(downloadUrl string, eventChan chan<- bool, config ExtractCommonConfig) error {
-	defer close(eventChan)
+func DownloadAndExtract(downloadUrl string, logger *log.Logger, config ExtractCommonConfig) error {
 	tempFile, err := ioutil.TempFile(os.TempDir(), "cornstone")
 	if err != nil {
 		return err
@@ -175,13 +175,11 @@ func DownloadAndExtract(downloadUrl string, eventChan chan<- bool, config Extrac
 	if err != nil {
 		return err
 	}
+	logger.Println("Downloading...")
 	if err := NewMultiDownloader(1, request).Do(); err != nil {
 		return err
 	}
-	select {
-	case eventChan <- true:
-	default:
-	}
+	logger.Println("Extracting...")
 	if err := ExtractArchiveFromFile(ExtractFileConfig{
 		ArchivePath: tempFilePath,
 		Common:      config,

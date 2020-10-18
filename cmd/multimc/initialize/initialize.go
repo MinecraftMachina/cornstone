@@ -68,14 +68,10 @@ func execute() error {
 	} else {
 		downloadUrl = profile.DownloadUrl
 	}
+	logger := log.New(os.Stderr, "", log.LstdFlags)
 
-	log.Println("Downloading MultiMC...")
-	eventChan := make(chan bool)
-	go func() {
-		<-eventChan
-		log.Println("Extracting MultiMC...")
-	}()
-	if err := util.DownloadAndExtract(downloadUrl, eventChan, util.ExtractCommonConfig{
+	log.Println("Obtaining MultiMC...")
+	if err := util.DownloadAndExtract(downloadUrl, logger, util.ExtractCommonConfig{
 		BasePath: "",
 		DestPath: multimcPath,
 		Unwrap:   true,
@@ -84,17 +80,12 @@ func execute() error {
 	}
 
 	if !noJava {
-		log.Println("Downloading Java...")
+		log.Println("Obtaining Java...")
 		javaPath := filepath.Join(destPath, "java")
 		if err := os.MkdirAll(javaPath, 0777); err != nil {
 			return e.S(err)
 		}
-		eventChan := make(chan bool)
-		go func() {
-			<-eventChan
-			log.Println("Extracting Java...")
-		}()
-		if err := util.DownloadAndExtract(profile.JavaUrl, eventChan, util.ExtractCommonConfig{
+		if err := util.DownloadAndExtract(profile.JavaUrl, logger, util.ExtractCommonConfig{
 			BasePath: "",
 			DestPath: javaPath,
 			Unwrap:   true,

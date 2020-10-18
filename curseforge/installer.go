@@ -24,7 +24,6 @@ type ModpackInstaller struct {
 type ModpackInstallerConfig struct {
 	DestPath        string
 	Input           string
-	Unwrap          bool
 	ConcurrentCount int
 	TargetType      int
 }
@@ -44,8 +43,20 @@ func (i *ModpackInstaller) Install() error {
 		return e.S(err)
 	}
 
-	if err := i.stageModpack(i.DestPath); err != nil {
+	tempDir, err := ioutil.TempDir(os.TempDir(), "cornstone")
+	if err != nil {
 		return e.S(err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	if err := i.stageModpack(tempDir); err != nil {
+		return e.S(err)
+	}
+	if err := i.fixWrappedModpack(tempDir); err != nil {
+		return err
+	}
+	if err := util.MergePaths(tempDir, i.DestPath); err != nil {
+		return err
 	}
 
 	manifestFile := filepath.Join(i.DestPath, "manifest.json")
@@ -86,6 +97,26 @@ func (i *ModpackInstaller) Install() error {
 	}
 
 	log.Println("Done!")
+	return nil
+}
+
+// If the modpack content is wrapped in one root directory, unwrap it.
+func (i *ModpackInstaller) fixWrappedModpack(modpackPath string) error {
+	manifestFile := filepath.Join(modpackPath, "manifest.json")
+	if _, err := os.Stat(manifestFile); os.IsNotExist(err) {
+		subFiles, err := ioutil.ReadDir(modpackPath)
+		if err != nil {
+			return e.S(err)
+		}
+		if len(subFiles) == 1 && subFiles[0].IsDir() {
+			rootDirPath := filepath.Join(modpackPath, subFiles[0].Name())
+			if err := util.MergePaths(rootDirPath, modpackPath); err != nil {
+				return e.S(err)
+			}
+		}
+	} else if err != nil {
+		return e.S(err)
+	}
 	return nil
 }
 
@@ -306,7 +337,7 @@ func (i *ModpackInstaller) stageModpack(stagingPath string) error {
 		if err := util.DownloadAndExtract(i.Input, logger, util.ExtractCommonConfig{
 			BasePath: "",
 			DestPath: stagingPath,
-			Unwrap:   i.Unwrap,
+			Unwrap:   false,
 		}); err != nil {
 			return e.S(err)
 		}
@@ -317,7 +348,7 @@ func (i *ModpackInstaller) stageModpack(stagingPath string) error {
 			Common: util.ExtractCommonConfig{
 				BasePath: "",
 				DestPath: stagingPath,
-				Unwrap:   i.Unwrap,
+				Unwrap:   false,
 			},
 		}); err != nil {
 			return e.S(err)

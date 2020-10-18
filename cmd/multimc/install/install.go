@@ -15,7 +15,6 @@ var destPath string
 var profile *multimc.OSProfile
 var input string
 var name string
-var unwrap bool
 var concurrentCount int
 
 var Cmd = &cobra.Command{
@@ -39,7 +38,6 @@ func execute() error {
 	return curseforge.NewModpackInstaller(&curseforge.ModpackInstallerConfig{
 		DestPath:        filepath.Join(destPath, "instances", name),
 		Input:           input,
-		Unwrap:          unwrap,
 		ConcurrentCount: concurrentCount,
 		TargetType:      curseforge.TargetMultiMC,
 	}).Install()
@@ -50,7 +48,6 @@ func init() {
 	if err := Cmd.MarkFlagRequired("input"); err != nil {
 		log.Fatalln(e.P(err))
 	}
-	Cmd.Flags().BoolVarP(&unwrap, "unwrap", "u", false, "Discard the root directory of the archive when extracting")
 	Cmd.Flags().StringVarP(&name, "name", "n", "", "Name to use for modpack when importing to MultiMC")
 	if err := Cmd.MarkFlagRequired("name"); err != nil {
 		log.Fatalln(e.P(err))

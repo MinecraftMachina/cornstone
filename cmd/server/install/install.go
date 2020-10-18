@@ -12,7 +12,6 @@ import (
 
 var destPath string
 var input string
-var unwrap bool
 var concurrentCount int
 
 var Cmd = &cobra.Command{
@@ -35,7 +34,6 @@ func execute() error {
 	return curseforge.NewModpackInstaller(&curseforge.ModpackInstallerConfig{
 		DestPath:        destPath,
 		Input:           input,
-		Unwrap:          unwrap,
 		ConcurrentCount: concurrentCount,
 		TargetType:      curseforge.TargetServer,
 	}).Install()
@@ -46,5 +44,4 @@ func init() {
 	if err := Cmd.MarkFlagRequired("input"); err != nil {
 		log.Fatalln(e.P(err))
 	}
-	Cmd.Flags().BoolVarP(&unwrap, "unwrap", "u", false, "Discard the root directory of the archive when extracting")
 }

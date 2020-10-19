@@ -12,7 +12,7 @@ type Addon struct {
 	Summary                string                   `json:"summary"`
 	DefaultFileID          int                      `json:"defaultFileId"`
 	DownloadCount          float64                  `json:"downloadCount"`
-	LatestFiles            []LatestFile             `json:"latestFiles"`
+	LatestFiles            []GameFile               `json:"latestFiles"`
 	Categories             []Categories             `json:"categories"`
 	Status                 int                      `json:"status"`
 	PrimaryCategoryID      int                      `json:"primaryCategoryId"`
@@ -69,7 +69,7 @@ type SortableGameVersion struct {
 	GameVersionReleaseDate time.Time `json:"gameVersionReleaseDate"`
 	GameVersionName        string    `json:"gameVersionName"`
 }
-type LatestFile struct {
+type GameFile struct {
 	ID                         int                   `json:"id"`
 	DisplayName                string                `json:"displayName"`
 	FileName                   string                `json:"fileName"`

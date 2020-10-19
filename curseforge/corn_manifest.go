@@ -7,12 +7,14 @@ type CornManifest struct {
 }
 type CornFile struct {
 	File
-	CornMetadata
+	Metadata CornMetadata `json:"_metadata"`
 }
 type CornMetadata struct {
-	Name       string `json:"_name"`
-	Summary    string `json:"_summary"`
-	WebsiteURL string `json:"_websiteUrl"`
+	ProjectName string `json:"projectName"`
+	FileName    string `json:"fileName"`
+	Summary     string `json:"summary"`
+	WebsiteURL  string `json:"websiteUrl"`
+	Hash        string `json:"hash"`
 }
 type ExtractConfig struct {
 	Enable bool `json:"enable"`

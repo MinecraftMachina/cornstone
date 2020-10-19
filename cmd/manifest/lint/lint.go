@@ -23,7 +23,7 @@ var concurrentCount int
 
 var Cmd = &cobra.Command{
 	Use:   "lint",
-	Short: "Lint a Corn modpack manifest, updating annotations",
+	Short: "Lint a Corn or Twitch modpack manifest, updating annotations",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		manifestInput = viper.GetString("manifestInput")
 		concurrentCount = viper.GetInt("concurrentCount")
@@ -61,18 +61,32 @@ func execute() error {
 		Workers:      concurrentCount,
 		Source:       source,
 		Operation: func(sourceItem interface{}) (interface{}, error) {
-			file := sourceItem.(*curseforge.CornFile)
-			if file.CornMetadata.Name != "" && !force {
+			manifestFile := sourceItem.(*curseforge.CornFile)
+			hash := fmt.Sprintf("%d%d", manifestFile.ProjectID, manifestFile.FileID)
+			if hash == manifestFile.Metadata.Hash && !force {
 				return nil, nil
 			}
-			addon, err := curseforge.QueryAddon(file.ProjectID)
+			addon, err := curseforge.QueryAddon(manifestFile.ProjectID)
 			if err != nil {
 				return nil, err
 			}
-			file.CornMetadata = curseforge.CornMetadata{
-				Name:       addon.Name,
-				Summary:    addon.Summary,
-				WebsiteURL: addon.WebsiteURL,
+			files, err := curseforge.QueryAddonFiles(manifestFile.ProjectID)
+			if err != nil {
+				return nil, err
+			}
+			var fileName string
+			for _, file := range files {
+				if file.ID == manifestFile.FileID {
+					fileName = file.FileName
+					break
+				}
+			}
+			manifestFile.Metadata = curseforge.CornMetadata{
+				ProjectName: addon.Name,
+				FileName:    fileName,
+				Summary:     addon.Summary,
+				WebsiteURL:  addon.WebsiteURL,
+				Hash:        hash,
 			}
 			return nil, nil
 		},

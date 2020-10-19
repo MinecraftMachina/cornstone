@@ -19,7 +19,8 @@ type ExtractConfig struct {
 	Unwrap bool `json:"unwrap"`
 }
 type ExternalFile struct {
-	Url string `json:"url"`
+	Name string `json:"name"`
+	Url  string `json:"url"`
 	// Can be a file path or directory path.
 	// In the case of a directory path, the file name will be inferred.
 	// See: grab.Request#Filename

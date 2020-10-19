@@ -24,35 +24,39 @@ func NewMultiDownloader(workers int, requests ...*grab.Request) *MultiDownloader
 	return &downloader
 }
 
-func (s *MultiDownloader) Do() error {
+func (s *MultiDownloader) Do() <-chan *grab.Response {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	for i := range s.requests {
 		s.requests[i] = s.requests[i].WithContext(ctx)
 	}
 
-	result := s.client.DoBatch(s.workers, s.requests...)
+	clientResult := s.client.DoBatch(s.workers, s.requests...)
+	returnResult := make(chan *grab.Response, s.workers)
 
 	if len(s.requests) > 1 {
-		return s.handleMultiFile(result, cancelFunc)
+		go s.handleMultiFile(clientResult, cancelFunc, returnResult)
 	} else {
-		return s.handleSingleFile(result)
+		go s.handleSingleFile(clientResult, returnResult)
 	}
+	return returnResult
 }
 
-func (s *MultiDownloader) handleMultiFile(result <-chan *grab.Response, cancelFunc context.CancelFunc) error {
+func (s *MultiDownloader) handleMultiFile(result <-chan *grab.Response, cancelFunc context.CancelFunc, returnResult chan<- *grab.Response) {
+	defer close(returnResult)
 	bar := NewBar(len(s.requests))
 	defer bar.Finish()
 	for response := range result {
 		if err := response.Err(); err != nil {
 			cancelFunc()
-			return err
+			return
 		}
 		bar.Add(1)
+		returnResult <- response
 	}
-	return nil
 }
 
-func (s *MultiDownloader) handleSingleFile(result <-chan *grab.Response) error {
+func (s *MultiDownloader) handleSingleFile(result <-chan *grab.Response, returnResult chan<- *grab.Response) {
+	defer close(returnResult)
 	response := <-result
 	barSize := int(response.Size() / SizeDivisor)
 	if barSize < 1 {
@@ -79,5 +83,5 @@ Loop:
 			break Loop
 		}
 	}
-	return response.Err()
+	returnResult <- response
 }

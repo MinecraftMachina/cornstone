@@ -134,8 +134,10 @@ func (i *ModpackInstaller) processForgeServer(manifest *CornManifest, destPath s
 		return err
 	}
 	log.Println("Downloading Forge installer...")
-	if err := util.NewMultiDownloader(i.ConcurrentCount, request).Do(); err != nil {
-		return err
+	for resp := range util.NewMultiDownloader(i.ConcurrentCount, request).Do() {
+		if err := resp.Err(); err != nil {
+			return err
+		}
 	}
 
 	log.Println("Installing Forge...")
@@ -217,12 +219,8 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 		if err != nil {
 			return err
 		}
+		request.Tag = file
 		requests = append(requests, request)
-	}
-
-	log.Println("Downloading files...")
-	if err := util.NewMultiDownloader(i.ConcurrentCount, requests...).Do(); err != nil {
-		return err
 	}
 
 	log.Println("Removing old mods...")
@@ -244,6 +242,47 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 			}
 		}
 		return nil
+	}); err != nil {
+		return err
+	}
+
+	log.Println("Obtaining files...")
+	for resp := range util.NewMultiDownloader(i.ConcurrentCount, requests...).Do() {
+		if err := resp.Err(); err != nil {
+			return err
+		}
+		request := resp.Request
+		if file, ok := request.Tag.(ExternalFile); ok && file.Extract.Enable {
+			log.Printf("Extracting external file '%s'...", file.InstallPath)
+			if err := i.extractExternalFile(file, request.Filename); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (i *ModpackInstaller) extractExternalFile(file ExternalFile, filePath string) error {
+	tempFile, err := ioutil.TempFile(os.TempDir(), "cornstone")
+	if err != nil {
+		return err
+	}
+	tempFilePath := tempFile.Name()
+	if err := tempFile.Close(); err != nil {
+		return err
+	}
+	defer os.Remove(tempFilePath)
+	if err := os.Rename(filePath, tempFilePath); err != nil {
+		return err
+	}
+	if err := util.ExtractArchiveFromFile(util.ExtractFileConfig{
+		ArchivePath: tempFilePath,
+		Common: util.ExtractCommonConfig{
+			BasePath: "",
+			DestPath: filepath.Dir(filePath),
+			Unwrap:   file.Extract.Unwrap,
+		},
 	}); err != nil {
 		return err
 	}

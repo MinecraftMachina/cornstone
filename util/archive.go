@@ -176,8 +176,10 @@ func DownloadAndExtract(downloadUrl string, logger *log.Logger, config ExtractCo
 		return err
 	}
 	logger.Println("Downloading...")
-	if err := NewMultiDownloader(1, request).Do(); err != nil {
-		return err
+	for resp := range NewMultiDownloader(1, request).Do() {
+		if err := resp.Err(); err != nil {
+			return err
+		}
 	}
 	logger.Println("Extracting...")
 	if err := ExtractArchiveFromFile(ExtractFileConfig{

@@ -130,6 +130,7 @@ func (i *ModpackInstaller) processForgeServer(manifest *CornManifest, destPath s
 	forgeName := fmt.Sprintf("forge-%s-installer.jar", fullVersion)
 	downloadUrl := fmt.Sprintf("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s/%s", fullVersion, forgeName)
 	savePath := filepath.Join(destPath, forgeName)
+
 	request, err := grab.NewRequest(savePath, downloadUrl)
 	if err != nil {
 		return err
@@ -138,6 +139,7 @@ func (i *ModpackInstaller) processForgeServer(manifest *CornManifest, destPath s
 	if err := util.NewMultiDownloader(i.ConcurrentCount, request).Do(); err != nil {
 		return err
 	}
+
 	log.Println("Installing Forge...")
 	cmd := exec.Command("java", "-jar", forgeName, "-installServer")
 	cmd.Stderr = os.Stderr

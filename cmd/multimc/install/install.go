@@ -35,12 +35,20 @@ var Cmd = &cobra.Command{
 }
 
 func execute() error {
-	return curseforge.NewModpackInstaller(&curseforge.ModpackInstallerConfig{
+	if err := curseforge.NewModpackInstaller(&curseforge.ModpackInstallerConfig{
 		DestPath:        filepath.Join(destPath, "instances", name),
 		Input:           input,
 		ConcurrentCount: concurrentCount,
 		TargetType:      curseforge.TargetMultiMC,
-	}).Install()
+	}).Install(); err != nil {
+		return err
+	}
+	destPathAbs, err := filepath.Abs(destPath)
+	if err != nil {
+		return err
+	}
+	log.Println("Done! Saved to: ", destPathAbs)
+	return nil
 }
 
 func init() {

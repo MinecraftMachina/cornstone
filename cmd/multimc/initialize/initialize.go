@@ -106,7 +106,12 @@ func execute() error {
 			return e.S(err)
 		}
 	}
-	log.Println("Done!")
+
+	multimcPathAbs, err := filepath.Abs(multimcPath)
+	if err != nil {
+		return err
+	}
+	log.Println("Done! Saved to: ", multimcPathAbs)
 	return nil
 }
 

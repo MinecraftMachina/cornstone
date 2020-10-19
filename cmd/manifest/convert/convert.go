@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 var manifestInput string
@@ -92,7 +93,12 @@ func execute() error {
 	if err := ioutil.WriteFile(manifestOutput, cornManifestBytes, 0666); err != nil {
 		return e.S(err)
 	}
-	log.Println("Done! Saved to: " + manifestOutput)
+
+	manifestOutputAbs, err := filepath.Abs(manifestOutput)
+	if err != nil {
+		return err
+	}
+	log.Println("Done! Saved to: " + manifestOutputAbs)
 	return nil
 }
 

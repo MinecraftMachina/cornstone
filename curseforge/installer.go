@@ -267,13 +267,13 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 		}
 		request := resp.Request
 		if file, ok := request.Tag.(ExternalFile); ok && file.Extract.Enable && file.Required {
-			installPath := util.SafeJoin(destPath, file.InstallPath)
+			extractPath := util.SafeJoin(destPath, file.InstallPath)
 			log.Printf("Extracting external file '%s'...", file.Name)
 			if err := util.ExtractArchiveFromFile(util.ExtractFileConfig{
 				ArchivePath: request.Filename,
 				Common: util.ExtractCommonConfig{
 					BasePath: "",
-					DestPath: installPath,
+					DestPath: extractPath,
 					Unwrap:   file.Extract.Unwrap,
 				},
 			}); err != nil {

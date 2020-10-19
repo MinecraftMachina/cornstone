@@ -14,8 +14,8 @@ LastHostname={{.LastHostname}}
 `[1:]
 
 type MainConfigData struct {
-	JavaPath  string
-	Analytics bool
+	JavaPath     string
+	Analytics    bool
 	LastHostname string
 }
 

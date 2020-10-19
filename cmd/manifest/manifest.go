@@ -2,7 +2,7 @@ package manifest
 
 import (
 	"cornstone/aliases/e"
-	"cornstone/cmd/manifest/convert"
+	"cornstone/cmd/manifest/lint"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -25,5 +25,5 @@ func init() {
 		log.Fatalln(e.P(err))
 	}
 
-	Cmd.AddCommand(convert.Cmd)
+	Cmd.AddCommand(lint.Cmd)
 }

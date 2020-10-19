@@ -1,4 +1,4 @@
-package convert
+package lint
 
 import (
 	"context"
@@ -22,8 +22,8 @@ var force bool
 var concurrentCount int
 
 var Cmd = &cobra.Command{
-	Use:   "convert",
-	Short: "Convert a Twitch modpack manifest to a Corn manifest (backwards-compatible)",
+	Use:   "lint",
+	Short: "Lint a Corn modpack manifest, updating annotations",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		manifestInput = viper.GetString("manifestInput")
 		concurrentCount = viper.GetInt("concurrentCount")
@@ -104,5 +104,5 @@ func execute() error {
 
 func init() {
 	Cmd.Flags().StringVarP(&manifestOutput, "output", "o", "manifest.new.json", "Path to output manifest.json")
-	Cmd.Flags().BoolVarP(&force, "force", "f", false, "Force convert files even if they are already converted")
+	Cmd.Flags().BoolVarP(&force, "force", "f", false, "Force annotate files from server even if they are already annotated")
 }

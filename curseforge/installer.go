@@ -95,8 +95,6 @@ func (i *ModpackInstaller) Install() error {
 	if err := i.processMods(&manifest, modsDestPath); err != nil {
 		return e.S(err)
 	}
-
-	log.Println("Done!")
 	return nil
 }
 

@@ -252,7 +252,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 			return err
 		}
 		request := resp.Request
-		if file, ok := request.Tag.(ExternalFile); ok && file.Extract.Enable {
+		if file, ok := request.Tag.(ExternalFile); ok && file.Extract.Enable && file.Required {
 			log.Printf("Extracting external file '%s'...", file.Name)
 			if err := i.extractExternalFile(file, request.Filename); err != nil {
 				return err

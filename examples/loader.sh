@@ -15,10 +15,11 @@ LAUNCHER_DIR="$PWD/corn-$MODPACK_NAME"
 # ======================================================================================================
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    CORNSTONE_URL="https://github.com/MinecraftMachina/cornstone/releases/download/v${CORNSTONE_VERSION}/cornstone_${CORNSTONE_VERSION}_darwin_amd64"
+    CORNSTONE_OS="darwin"
 else
-    CORNSTONE_URL="https://github.com/MinecraftMachina/cornstone/releases/download/v${CORNSTONE_VERSION}/cornstone_${CORNSTONE_VERSION}_linux_amd64"
+    CORNSTONE_OS="linux"
 fi
+CORNSTONE_URL="https://github.com/MinecraftMachina/cornstone/releases/download/v${CORNSTONE_VERSION}/cornstone_${CORNSTONE_VERSION}_${CORNSTONE_OS}_amd64"
 
 if [ ! -f "$CORNSTONE_FILE" ]; then
     echo "Downloading loader..."

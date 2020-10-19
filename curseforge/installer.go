@@ -210,11 +210,25 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	}
 
 	for _, file := range manifest.ExternalFiles {
-		downloadPath := util.SafeJoin(destPath, file.InstallPath)
-		if !file.Required {
-			downloadPath += ".disabled"
+		var downloadPath string
+		if file.Extract.Enable {
+			tempFile, err := ioutil.TempFile(os.TempDir(), "cornstone")
+			if err != nil {
+				return err
+			}
+			tempFilePath := tempFile.Name()
+			if err := tempFile.Close(); err != nil {
+				return err
+			}
+			defer os.Remove(tempFilePath)
+			downloadPath = tempFilePath
+		} else {
+			downloadPath = util.SafeJoin(destPath, file.InstallPath)
+			if !file.Required {
+				downloadPath += ".disabled"
+			}
+			downloadPaths[downloadPath] = true
 		}
-		downloadPaths[downloadPath] = true
 		request, err := grab.NewRequest(downloadPath, file.Url)
 		if err != nil {
 			return err
@@ -253,39 +267,22 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 		}
 		request := resp.Request
 		if file, ok := request.Tag.(ExternalFile); ok && file.Extract.Enable && file.Required {
+			installPath := util.SafeJoin(destPath, file.InstallPath)
 			log.Printf("Extracting external file '%s'...", file.Name)
-			if err := i.extractExternalFile(file, request.Filename); err != nil {
+			if err := util.ExtractArchiveFromFile(util.ExtractFileConfig{
+				ArchivePath: request.Filename,
+				Common: util.ExtractCommonConfig{
+					BasePath: "",
+					DestPath: installPath,
+					Unwrap:   file.Extract.Unwrap,
+				},
+			}); err != nil {
 				return err
 			}
+			return nil
 		}
 	}
 
-	return nil
-}
-
-func (i *ModpackInstaller) extractExternalFile(file ExternalFile, filePath string) error {
-	tempFile, err := ioutil.TempFile(os.TempDir(), "cornstone")
-	if err != nil {
-		return err
-	}
-	tempFilePath := tempFile.Name()
-	if err := tempFile.Close(); err != nil {
-		return err
-	}
-	defer os.Remove(tempFilePath)
-	if err := os.Rename(filePath, tempFilePath); err != nil {
-		return err
-	}
-	if err := util.ExtractArchiveFromFile(util.ExtractFileConfig{
-		ArchivePath: tempFilePath,
-		Common: util.ExtractCommonConfig{
-			BasePath: "",
-			DestPath: filepath.Dir(filePath),
-			Unwrap:   file.Extract.Unwrap,
-		},
-	}); err != nil {
-		return err
-	}
 	return nil
 }
 

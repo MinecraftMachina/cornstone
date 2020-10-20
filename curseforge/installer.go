@@ -147,11 +147,17 @@ func (i *ModpackInstaller) processForgeServer(manifest *CornManifest, destPath s
 		return err
 	}
 
-	removeList := []string{savePath, savePath + ".log"}
+	if err := os.Remove(savePath); err != nil {
+		return err
+	}
+
+	removeList := []string{
+		savePath + ".log",
+		filepath.Join(filepath.Dir(savePath), "installer.log"),
+	}
 	for _, removeItem := range removeList {
-		if err := os.Remove(removeItem); err != nil {
-			return err
-		}
+		// depending on version not all files will exist, so ignore errors
+		os.Remove(removeItem)
 	}
 	return nil
 }

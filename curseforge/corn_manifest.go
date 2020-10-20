@@ -7,9 +7,10 @@ type CornManifest struct {
 }
 type CornFile struct {
 	File
-	Metadata CornMetadata `json:"_metadata"`
+	Metadata      Metadata `json:"_metadata"`
+	ServerIgnored bool     `json:"_serverIgnored"`
 }
-type CornMetadata struct {
+type Metadata struct {
 	ProjectName string `json:"projectName"`
 	FileName    string `json:"fileName"`
 	Summary     string `json:"summary"`
@@ -21,12 +22,10 @@ type ExtractConfig struct {
 	Unwrap bool `json:"unwrap"`
 }
 type ExternalFile struct {
-	Name string `json:"name"`
-	Url  string `json:"url"`
-	// Can be a file path or directory path.
-	// In the case of a directory path, the file name will be inferred.
-	// See: grab.Request#Filename
-	InstallPath string        `json:"installPath"`
-	Required    bool          `json:"required"`
-	Extract     ExtractConfig `json:"extract"`
+	Name          string        `json:"name"`
+	Url           string        `json:"url"`
+	InstallPath   string        `json:"installPath"`
+	Required      bool          `json:"required"`
+	Extract       ExtractConfig `json:"extract"`
+	ServerIgnored bool          `json:"serverIgnored"`
 }

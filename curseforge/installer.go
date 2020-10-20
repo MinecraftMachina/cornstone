@@ -68,10 +68,8 @@ func (i *ModpackInstaller) Install() error {
 	if err := json.Unmarshal(manifestBytes, &manifest); err != nil {
 		return e.S(err)
 	}
-	if i.TargetType != TargetServer {
-		if err := i.processOverrides(&manifest, i.DestPath); err != nil {
-			return e.S(err)
-		}
+	if err := i.processOverrides(&manifest, i.DestPath); err != nil {
+		return e.S(err)
 	}
 	if i.TargetType == TargetMultiMC {
 		if err := i.ensureInstanceConfig(&manifest, i.DestPath); err != nil {
@@ -165,8 +163,12 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	}
 
 	var source []interface{}
-	for i := range manifest.Files {
-		source = append(source, &manifest.Files[i])
+	for i2 := range manifest.Files {
+		file := &manifest.Files[i2]
+		if i.TargetType == TargetServer && file.ServerIgnored {
+			continue
+		}
+		source = append(source, file)
 	}
 
 	type OpResult struct {
@@ -210,6 +212,9 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	}
 
 	for _, file := range manifest.ExternalFiles {
+		if i.TargetType == TargetServer && file.ServerIgnored {
+			continue
+		}
 		var downloadPath string
 		if file.Extract.Enable {
 			tempFile, err := ioutil.TempFile(os.TempDir(), "cornstone")
@@ -336,7 +341,12 @@ func (i *ModpackInstaller) getForgeVersion(manifest *CornManifest) string {
 func (i *ModpackInstaller) processOverrides(manifest *CornManifest, stagingPath string) error {
 	if manifest.Overrides != "" {
 		overridePath := util.SafeJoin(stagingPath, manifest.Overrides)
-		minecraftPath := filepath.Join(stagingPath, "minecraft")
+		var minecraftPath string
+		if i.TargetType == TargetServer {
+			minecraftPath = stagingPath
+		} else {
+			minecraftPath = filepath.Join(stagingPath, "minecraft")
+		}
 		if _, err := os.Stat(minecraftPath); err == nil {
 			return util.MergePaths(overridePath, minecraftPath)
 		} else if os.IsNotExist(err) {

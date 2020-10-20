@@ -81,7 +81,7 @@ func execute() error {
 					break
 				}
 			}
-			manifestFile.Metadata = curseforge.CornMetadata{
+			manifestFile.Metadata = curseforge.Metadata{
 				ProjectName: addon.Name,
 				FileName:    fileName,
 				Summary:     addon.Summary,

@@ -1,4 +1,4 @@
-package lint
+package format
 
 import (
 	"context"
@@ -22,8 +22,8 @@ var force bool
 var concurrentCount int
 
 var Cmd = &cobra.Command{
-	Use:   "lint",
-	Short: "Lint a Corn or Twitch modpack manifest, updating annotations",
+	Use:   "format",
+	Short: "Format a Corn or Twitch modpack manifest, updating annotations",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		manifestInput = viper.GetString("manifestInput")
 		concurrentCount = viper.GetInt("concurrentCount")

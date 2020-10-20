@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
-	"os"
 	"path/filepath"
 )
 
@@ -25,7 +24,6 @@ var Cmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		util.EnsureDirectoryExists(destPath, false, true)
 		if err := execute(); err != nil {
-			os.RemoveAll(destPath)
 			log.Fatalln(e.P(err))
 		}
 	},

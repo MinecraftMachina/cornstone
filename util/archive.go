@@ -161,7 +161,7 @@ func ExtractArchiveFromReader(config ExtractReaderConfig) error {
 }
 
 func DownloadAndExtract(downloadUrl string, logger *log.Logger, config ExtractCommonConfig) error {
-	tempFile, err := ioutil.TempFile(os.TempDir(), "cornstone")
+	tempFile, err := TempFile()
 	if err != nil {
 		return err
 	}

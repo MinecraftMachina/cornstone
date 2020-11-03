@@ -39,7 +39,7 @@ func NewModpackInstaller(config *ModpackInstallerConfig) *ModpackInstaller {
 
 // ref: https://github.com/MultiMC/MultiMC5/blob/develop/api/logic/InstanceImportTask.cpp
 func (i *ModpackInstaller) Install() error {
-	tempStagingPath, err := ioutil.TempDir(os.TempDir(), "cornstone")
+	tempStagingPath, err := util.TempDir()
 	if err != nil {
 		return e.S(err)
 	}
@@ -223,7 +223,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 		}
 		var downloadPath string
 		if file.Extract.Enable {
-			tempFile, err := ioutil.TempFile(os.TempDir(), "cornstone")
+			tempFile, err := util.TempFile()
 			if err != nil {
 				return err
 			}

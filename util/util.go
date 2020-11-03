@@ -99,3 +99,11 @@ func MergePaths(sourcePath string, destPath string) error {
 	}
 	return os.RemoveAll(sourcePath)
 }
+
+func TempFile() (*os.File, error) {
+	return ioutil.TempFile(".", "cornstone-temp-")
+}
+
+func TempDir() (string, error) {
+	return ioutil.TempDir(".", "cornstone-temp-")
+}

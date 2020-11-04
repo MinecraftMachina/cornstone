@@ -176,7 +176,9 @@ func DownloadAndExtract(downloadUrl string, logger *log.Logger, config ExtractCo
 		return err
 	}
 	logger.Println("Downloading...")
-	for resp := range NewMultiDownloader(1, request).Do() {
+	result, cancelFunc := NewMultiDownloader(1, request).Do()
+	defer cancelFunc()
+	for resp := range result {
 		if err := resp.Err(); err != nil {
 			return err
 		}

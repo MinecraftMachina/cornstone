@@ -132,7 +132,9 @@ func (i *ModpackInstaller) processForgeServer(manifest *CornManifest, destPath s
 		return err
 	}
 	log.Println("Downloading Forge installer...")
-	for resp := range util.NewMultiDownloader(i.ConcurrentCount, request).Do() {
+	result, cancelFunc := util.NewMultiDownloader(i.ConcurrentCount, request).Do()
+	defer cancelFunc()
+	for resp := range result {
 		if err := resp.Err(); err != nil {
 			return err
 		}
@@ -272,11 +274,19 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	}
 
 	log.Println("Obtaining files...")
-	for resp := range util.NewMultiDownloader(i.ConcurrentCount, requests...).Do() {
-		if err := resp.Err(); err != nil {
-			return err
-		}
+	result, cancelFunc := util.NewMultiDownloader(i.ConcurrentCount, requests...).Do()
+	defer cancelFunc()
+	for resp := range result {
 		request := resp.Request
+		if err := resp.Err(); err != nil {
+			if file, ok := request.Tag.(ExternalFile); ok && !file.Required {
+				log.Println("error downloading external file: ", file.Name)
+			} else if file, ok := request.Tag.(*CornFile); ok && !file.Required {
+				log.Println("error downloading addon: ", file.ProjectID)
+			} else {
+				return err
+			}
+		}
 		if file, ok := request.Tag.(ExternalFile); ok && file.Extract.Enable && file.Required {
 			extractPath := util.SafeJoin(destPath, file.InstallPath)
 			log.Printf("Extracting external file '%s'...", file.Name)

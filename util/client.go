@@ -3,7 +3,7 @@ package util
 import (
 	"cornstone/aliases/e"
 	"fmt"
-	"github.com/dghubble/sling"
+	"github.com/ViRb3/sling/v2"
 	"github.com/pkg/errors"
 )
 

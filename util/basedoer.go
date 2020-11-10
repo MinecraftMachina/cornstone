@@ -1,7 +1,7 @@
 package util
 
 import (
-	"github.com/dghubble/sling"
+	"github.com/ViRb3/sling/v2"
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"

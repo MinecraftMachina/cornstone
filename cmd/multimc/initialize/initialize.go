@@ -111,7 +111,7 @@ func execute() error {
 	if err != nil {
 		return err
 	}
-	log.Println("Done! Saved to:", multimcPathAbs)
+	log.Println("Done! Saved to: " + multimcPathAbs)
 	return nil
 }
 

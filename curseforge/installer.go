@@ -281,12 +281,12 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 		request := resp.Request
 		if err := resp.Err(); err != nil {
 			if file, ok := request.Tag.(ExternalFile); ok {
-				log.Println("error downloading external file: ", file.Name)
+				log.Println("error downloading external file: " + file.Name)
 				if file.Required {
 					return err
 				}
 			} else if file, ok := request.Tag.(*CornFile); ok {
-				log.Println("error downloading addon: ", file.ProjectID)
+				log.Printf("error downloading addon: %d\n", file.ProjectID)
 				if file.Required {
 					return err
 				}
@@ -296,7 +296,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 		}
 		if file, ok := request.Tag.(ExternalFile); ok && file.Extract.Enable && file.Required {
 			extractPath := util.SafeJoin(destPath, file.InstallPath)
-			log.Printf("Extracting external file '%s'...", file.Name)
+			log.Printf("Extracting external file '%s'...\n", file.Name)
 			if err := util.ExtractArchiveFromFile(util.ExtractFileConfig{
 				ArchivePath: request.Filename,
 				Common: util.ExtractCommonConfig{

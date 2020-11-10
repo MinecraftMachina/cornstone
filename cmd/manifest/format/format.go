@@ -112,7 +112,7 @@ func execute() error {
 	if err != nil {
 		return err
 	}
-	log.Println("Done! Saved to:" + manifestOutputAbs)
+	log.Println("Done! Saved to: " + manifestOutputAbs)
 	return nil
 }
 

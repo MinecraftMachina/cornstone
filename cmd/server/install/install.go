@@ -42,7 +42,7 @@ func execute() error {
 	if err != nil {
 		return err
 	}
-	log.Println("Done! Saved to:", destPathAbs)
+	log.Println("Done! Saved to: " + destPathAbs)
 	return nil
 }
 

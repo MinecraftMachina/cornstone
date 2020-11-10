@@ -23,7 +23,7 @@ var concurrentCount int
 
 var Cmd = &cobra.Command{
 	Use:   "format",
-	Short: "Format a Corn or Twitch modpack manifest, updating annotations",
+	Short: "Format a Curse/Corn modpack manifest, updating annotations",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		manifestInput = viper.GetString("manifestInput")
 		concurrentCount = viper.GetInt("concurrentCount")

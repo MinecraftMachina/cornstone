@@ -16,7 +16,7 @@ var concurrentCount int
 
 var Cmd = &cobra.Command{
 	Use:   "install",
-	Short: "Install a Corn or Twitch modpack from file or URL into a server",
+	Short: "Install a Curse/Corn modpack from file or URL into a server",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		concurrentCount = viper.GetInt("concurrentCount")
 		destPath = viper.GetString("serverPath")

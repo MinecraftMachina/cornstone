@@ -28,6 +28,7 @@ func (s *MultiDownloader) Do() (<-chan *grab.Response, context.CancelFunc) {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	for i := range s.requests {
 		s.requests[i] = s.requests[i].WithContext(ctx)
+		s.requests[i].NoResume = true // prevent error on local size > remote size
 	}
 
 	clientResult := s.client.DoBatch(s.workers, s.requests...)

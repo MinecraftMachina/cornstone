@@ -280,10 +280,16 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	for resp := range result {
 		request := resp.Request
 		if err := resp.Err(); err != nil {
-			if file, ok := request.Tag.(ExternalFile); ok && !file.Required {
+			if file, ok := request.Tag.(ExternalFile); ok {
 				log.Println("error downloading external file: ", file.Name)
-			} else if file, ok := request.Tag.(*CornFile); ok && !file.Required {
+				if file.Required {
+					return err
+				}
+			} else if file, ok := request.Tag.(*CornFile); ok {
 				log.Println("error downloading addon: ", file.ProjectID)
+				if file.Required {
+					return err
+				}
 			} else {
 				return err
 			}

@@ -52,14 +52,7 @@ func (i *ModpackInstaller) Install() error {
 		return e.S(err)
 	}
 
-	if err := os.MkdirAll(i.DestPath, 0777); err != nil {
-		return e.S(err)
-	}
-	if err := util.MergePaths(tempStagingPath, i.DestPath); err != nil {
-		return e.S(err)
-	}
-
-	manifestFile := filepath.Join(i.DestPath, "manifest.json")
+	manifestFile := filepath.Join(tempStagingPath, "manifest.json")
 	manifestBytes, err := ioutil.ReadFile(manifestFile)
 	if err != nil {
 		return e.S(err)
@@ -68,22 +61,30 @@ func (i *ModpackInstaller) Install() error {
 	if err := json.Unmarshal(manifestBytes, &manifest); err != nil {
 		return e.S(err)
 	}
-	if err := i.processOverrides(&manifest, i.DestPath); err != nil {
+	if err := i.processOverrides(&manifest, tempStagingPath); err != nil {
 		return e.S(err)
 	}
 	if i.TargetType == TargetMultiMC {
-		if err := i.ensureInstanceConfig(&manifest, i.DestPath); err != nil {
+		if err := i.ensureInstanceConfig(&manifest, tempStagingPath); err != nil {
 			return e.S(err)
 		}
-		if err := i.ensurePackFile(&manifest, i.DestPath); err != nil {
+		if err := i.ensurePackFile(&manifest, tempStagingPath); err != nil {
 			return e.S(err)
 		}
 	}
 	if i.TargetType == TargetServer {
-		if err := i.processForgeServer(&manifest, i.DestPath); err != nil {
+		if err := i.processForgeServer(&manifest, tempStagingPath); err != nil {
 			return e.S(err)
 		}
 	}
+
+	if err := os.MkdirAll(i.DestPath, 0777); err != nil {
+		return e.S(err)
+	}
+	if err := util.MergePaths(tempStagingPath, i.DestPath); err != nil {
+		return e.S(err)
+	}
+
 	var modsDestPath string
 	if i.TargetType == TargetServer {
 		modsDestPath = i.DestPath

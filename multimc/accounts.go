@@ -28,7 +28,7 @@ type Accounts struct {
 
 func MakeNewAccountsJson(name string) ([]byte, error) {
 	hash := "ba1f2511fc30423bdbb183fe33f3dd0f"
-	email := "offline@ignore.d"
+	email := "test@account.dev"
 	accounts := AccountsJson{
 		Accounts: []Accounts{
 			{

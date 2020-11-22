@@ -3,11 +3,13 @@ package curseforge
 import (
 	"context"
 	"cornstone/aliases/e"
+	"cornstone/archive"
+	"cornstone/downloader"
 	"cornstone/multimc"
+	"cornstone/throttler"
 	"cornstone/util"
 	"encoding/json"
 	"fmt"
-	"github.com/cavaliercoder/grab"
 	"io/ioutil"
 	"log"
 	"os"
@@ -128,15 +130,12 @@ func (i *ModpackInstaller) processForgeServer(manifest *CornManifest, destPath s
 	downloadUrl := fmt.Sprintf("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s/%s", fullVersion, forgeName)
 	savePath := filepath.Join(destPath, forgeName)
 
-	request, err := grab.NewRequest(savePath, downloadUrl)
-	if err != nil {
-		return err
-	}
 	log.Println("Downloading Forge installer...")
-	result, cancelFunc := util.NewMultiDownloader(i.ConcurrentCount, request).Do()
+	request := downloader.Request{savePath, downloadUrl, nil}
+	result, cancelFunc := downloader.NewMultiDownloader(i.ConcurrentCount, request).Do()
 	defer cancelFunc()
 	for resp := range result {
-		if err := resp.Err(); err != nil {
+		if err := resp.Err; err != nil {
 			return err
 		}
 	}
@@ -186,7 +185,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
-	throttler := util.NewThrottler(util.ThrottlerConfig{
+	addonThrottler := throttler.NewThrottler(throttler.Config{
 		Ctx:          ctx,
 		ResultBuffer: 10,
 		Workers:      i.ConcurrentCount,
@@ -200,8 +199,8 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 
 	log.Println("Building addon download URLs...")
 	downloadPaths := map[string]bool{}
-	var requests []*grab.Request
-	for result := range throttler.Run() {
+	var requests []downloader.Request
+	for result := range addonThrottler.Run() {
 		if result.Error != nil {
 			cancelFunc()
 			return result.Error
@@ -213,10 +212,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 			downloadPath += ".disabled"
 		}
 		downloadPaths[downloadPath] = true
-		request, err := grab.NewRequest(downloadPath, opResult.downloadUrl)
-		if err != nil {
-			return err
-		}
+		request := downloader.Request{downloadPath, opResult.downloadUrl, nil}
 		requests = append(requests, request)
 	}
 
@@ -243,11 +239,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 			}
 			downloadPaths[downloadPath] = true
 		}
-		request, err := grab.NewRequest(downloadPath, file.Url)
-		if err != nil {
-			return err
-		}
-		request.Tag = file
+		request := downloader.Request{downloadPath, file.Url, file}
 		requests = append(requests, request)
 	}
 
@@ -275,11 +267,11 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	}
 
 	log.Println("Obtaining files...")
-	result, cancelFunc := util.NewMultiDownloader(i.ConcurrentCount, requests...).Do()
+	results, cancelFunc := downloader.NewMultiDownloader(i.ConcurrentCount, requests...).Do()
 	defer cancelFunc()
-	for resp := range result {
-		request := resp.Request
-		if err := resp.Err(); err != nil {
+	for result := range results {
+		request := result.Request
+		if err := result.Err; err != nil {
 			if file, ok := request.Tag.(ExternalFile); ok {
 				log.Println("error downloading external file: " + file.Name)
 				if file.Required {
@@ -297,9 +289,9 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 		if file, ok := request.Tag.(ExternalFile); ok && file.Extract.Enable && file.Required {
 			extractPath := util.SafeJoin(destPath, file.InstallPath)
 			log.Printf("Extracting external file '%s'...\n", file.Name)
-			if err := util.ExtractArchiveFromFile(util.ExtractFileConfig{
-				ArchivePath: request.Filename,
-				Common: util.ExtractCommonConfig{
+			if err := archive.ExtractArchiveFromFile(archive.ExtractFileConfig{
+				ArchivePath: result.Request.DownloadPath,
+				Common: archive.ExtractCommonConfig{
 					BasePath: "",
 					DestPath: extractPath,
 					Unwrap:   file.Extract.Unwrap,
@@ -403,7 +395,7 @@ func (i *ModpackInstaller) stageModpack(stagingPath string) error {
 	if _, err := os.Stat(i.Input); err != nil {
 		log.Println("Obtaining modpack...")
 		logger := log.New(os.Stderr, "", log.LstdFlags)
-		if err := util.DownloadAndExtract(i.Input, logger, util.ExtractCommonConfig{
+		if err := archive.DownloadAndExtract(i.Input, logger, archive.ExtractCommonConfig{
 			BasePath: "",
 			DestPath: stagingPath,
 			Unwrap:   false,
@@ -412,9 +404,9 @@ func (i *ModpackInstaller) stageModpack(stagingPath string) error {
 		}
 	} else {
 		log.Println("Extracting modpack...")
-		if err := util.ExtractArchiveFromFile(util.ExtractFileConfig{
+		if err := archive.ExtractArchiveFromFile(archive.ExtractFileConfig{
 			ArchivePath: i.Input,
-			Common: util.ExtractCommonConfig{
+			Common: archive.ExtractCommonConfig{
 				BasePath: "",
 				DestPath: stagingPath,
 				Unwrap:   false,

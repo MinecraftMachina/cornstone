@@ -4,6 +4,7 @@ import (
 	"context"
 	"cornstone/aliases/e"
 	"cornstone/curseforge"
+	"cornstone/throttler"
 	"cornstone/util"
 	"encoding/json"
 	"fmt"
@@ -55,7 +56,7 @@ func execute() error {
 	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
-	throttler := util.NewThrottler(util.ThrottlerConfig{
+	addonThrottler := throttler.NewThrottler(throttler.Config{
 		Ctx:          ctx,
 		ResultBuffer: 10,
 		Workers:      concurrentCount,
@@ -93,7 +94,7 @@ func execute() error {
 	})
 
 	log.Println("Querying addons...")
-	for result := range throttler.Run() {
+	for result := range addonThrottler.Run() {
 		if result.Error != nil {
 			cancelFunc()
 			return e.S(result.Error)

@@ -1,10 +1,11 @@
-package util
+package archive
 
 import (
 	"archive/tar"
 	"archive/zip"
 	"bytes"
-	"github.com/cavaliercoder/grab"
+	"cornstone/downloader"
+	"cornstone/util"
 	"github.com/h2non/filetype"
 	"github.com/h2non/filetype/matchers"
 	"github.com/mholt/archiver/v3"
@@ -89,7 +90,7 @@ func processFile(file archiver.File, config ExtractCommonConfig) error {
 			fullName = fullName[firstPathIndex+1:]
 		}
 	}
-	fullName = SafeJoin(config.DestPath, fullName)
+	fullName = util.SafeJoin(config.DestPath, fullName)
 	if file.IsDir() {
 		if err := os.MkdirAll(fullName, file.Mode()); err != nil {
 			return err
@@ -161,7 +162,7 @@ func ExtractArchiveFromReader(config ExtractReaderConfig) error {
 }
 
 func DownloadAndExtract(downloadUrl string, logger *log.Logger, config ExtractCommonConfig) error {
-	tempFile, err := TempFile()
+	tempFile, err := util.TempFile()
 	if err != nil {
 		return err
 	}
@@ -171,15 +172,12 @@ func DownloadAndExtract(downloadUrl string, logger *log.Logger, config ExtractCo
 	}
 	defer os.Remove(tempFilePath)
 
-	request, err := grab.NewRequest(tempFilePath, downloadUrl)
-	if err != nil {
-		return err
-	}
 	logger.Println("Downloading...")
-	result, cancelFunc := NewMultiDownloader(1, request).Do()
+	request := downloader.Request{tempFilePath, downloadUrl, nil}
+	result, cancelFunc := downloader.NewMultiDownloader(1, request).Do()
 	defer cancelFunc()
 	for resp := range result {
-		if err := resp.Err(); err != nil {
+		if err := resp.Err; err != nil {
 			return err
 		}
 	}

@@ -4,7 +4,6 @@ go 1.15
 
 require (
 	github.com/ViRb3/sling/v2 v2.0.1
-	github.com/cavaliercoder/grab v1.0.1-0.20201108051000-98a5bfe305ec
 	github.com/h2non/filetype v1.1.0
 	github.com/mholt/archiver/v3 v3.3.2
 	github.com/pkg/errors v0.9.1

@@ -1,7 +1,8 @@
-package util
+package throttler
 
 import (
 	"context"
+	"cornstone/util"
 	"sync"
 )
 
@@ -11,10 +12,10 @@ type Result struct {
 }
 
 type Throttler struct {
-	ThrottlerConfig
+	Config
 }
 
-type ThrottlerConfig struct {
+type Config struct {
 	Ctx          context.Context
 	ResultBuffer int
 	Workers      int
@@ -22,7 +23,7 @@ type ThrottlerConfig struct {
 	Operation    func(sourceItem interface{}) (interface{}, error)
 }
 
-func NewThrottler(config ThrottlerConfig) *Throttler {
+func NewThrottler(config Config) *Throttler {
 	return &Throttler{
 		config,
 	}
@@ -33,7 +34,7 @@ func (t *Throttler) Run() <-chan Result {
 	resultChan := make(chan Result, t.ResultBuffer)
 	wg := sync.WaitGroup{}
 
-	bar := NewBar(len(t.Source))
+	bar := util.NewBar(len(t.Source))
 	wg.Add(len(t.Source))
 
 	go func() {

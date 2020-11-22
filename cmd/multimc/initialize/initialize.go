@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"cornstone/aliases/e"
+	"cornstone/archive"
 	"cornstone/multimc"
 	"cornstone/util"
 	"fmt"
@@ -49,7 +50,7 @@ func execute() error {
 	logger := log.New(os.Stderr, "", log.LstdFlags)
 
 	log.Println("Obtaining MultiMC...")
-	if err := util.DownloadAndExtract(downloadUrl, logger, util.ExtractCommonConfig{
+	if err := archive.DownloadAndExtract(downloadUrl, logger, archive.ExtractCommonConfig{
 		BasePath: "",
 		DestPath: multimcPath,
 		Unwrap:   true,
@@ -63,7 +64,7 @@ func execute() error {
 		if err := os.MkdirAll(javaPath, 0777); err != nil {
 			return e.S(err)
 		}
-		if err := util.DownloadAndExtract(profile.JavaUrl, logger, util.ExtractCommonConfig{
+		if err := archive.DownloadAndExtract(profile.JavaUrl, logger, archive.ExtractCommonConfig{
 			BasePath: "",
 			DestPath: javaPath,
 			Unwrap:   true,

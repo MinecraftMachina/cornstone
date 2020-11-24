@@ -15,6 +15,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 )
 
 var manifestInput string
@@ -100,6 +101,13 @@ func execute() error {
 			return e.S(result.Error)
 		}
 	}
+
+	sort.Slice(manifest.Files, func(i, j int) bool {
+		return manifest.Files[i].Metadata.ProjectName < manifest.Files[j].Metadata.ProjectName
+	})
+	sort.Slice(manifest.ExternalFiles, func(i, j int) bool {
+		return manifest.ExternalFiles[i].Name < manifest.ExternalFiles[j].Name
+	})
 
 	cornManifestBytes, err := util.JsonMarshalPretty(manifest)
 	if err != nil {

@@ -8,18 +8,14 @@ import (
 	"cornstone/util"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"log"
-	"os"
-	"path/filepath"
 	"sort"
 )
 
 var manifestInput string
-var manifestOutput string
 var force bool
 var concurrentCount int
 
@@ -38,9 +34,6 @@ var Cmd = &cobra.Command{
 }
 
 func execute() error {
-	if _, err := os.Stat(manifestOutput); err == nil || !os.IsNotExist(err) {
-		return errors.New(fmt.Sprintf("output file %s already exists or access denied", manifestOutput))
-	}
 	log.Println("Loading manifest...")
 	manifestBytes, err := ioutil.ReadFile(manifestInput)
 	if err != nil {
@@ -113,19 +106,14 @@ func execute() error {
 	if err != nil {
 		return e.S(err)
 	}
-	if err := ioutil.WriteFile(manifestOutput, cornManifestBytes, 0666); err != nil {
+	if err := ioutil.WriteFile(manifestInput, cornManifestBytes, 0666); err != nil {
 		return e.S(err)
 	}
 
-	manifestOutputAbs, err := filepath.Abs(manifestOutput)
-	if err != nil {
-		return err
-	}
-	log.Println("Done! Saved to: " + manifestOutputAbs)
+	log.Println("Done!")
 	return nil
 }
 
 func init() {
-	Cmd.Flags().StringVarP(&manifestOutput, "output", "o", "manifest.new.json", "Path to output manifest.json")
 	Cmd.Flags().BoolVarP(&force, "force", "f", false, "Force annotate files from server even if they are already annotated")
 }

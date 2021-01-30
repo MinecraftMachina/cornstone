@@ -4,8 +4,8 @@ import (
 	"archive/tar"
 	"archive/zip"
 	"bytes"
-	"cornstone/downloader"
 	"cornstone/util"
+	"github.com/ViRb3/go-parallel/downloader"
 	"github.com/h2non/filetype"
 	"github.com/h2non/filetype/matchers"
 	"github.com/mholt/archiver/v3"
@@ -173,8 +173,13 @@ func DownloadAndExtract(downloadUrl string, logger *log.Logger, config ExtractCo
 	defer os.Remove(tempFilePath)
 
 	logger.Println("Downloading...")
-	request := downloader.Request{DownloadPath: tempFilePath, DownloadUrl: downloadUrl}
-	result, cancelFunc := downloader.NewMultiDownloader(1, request).Do()
+	job := downloader.Job{SaveFilePath: tempFilePath, Url: downloadUrl}
+	result, cancelFunc := util.MultiDownload(downloader.SharedConfig{
+		ShowProgress:   true,
+		SkipSameLength: true,
+		Workers:        1,
+		Jobs:           []downloader.Job{job},
+	})
 	defer cancelFunc()
 	for resp := range result {
 		if err := resp.Err; err != nil {

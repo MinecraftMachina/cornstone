@@ -2,7 +2,6 @@ package util
 
 import (
 	"github.com/ViRb3/sling/v2"
-	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
 )
@@ -16,11 +15,12 @@ func (b *BaseDoer) Do(req *http.Request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	if response.StatusCode != 200 {
-		bodyBytes, _ := ioutil.ReadAll(response.Body)
-		return nil, CreateNon200Error(response.StatusCode, bodyBytes)
+	for _, code := range ExpectedStatusCode {
+		if response.StatusCode == code {
+			return response, nil
+		}
 	}
-	return response, nil
+	return nil, CreateUnexpectedStatusCodeError(req.RequestURI, response)
 }
 
 func newBaseClient() *http.Client {

@@ -4,12 +4,12 @@ import (
 	"context"
 	"cornstone/aliases/e"
 	"cornstone/archive"
-	"cornstone/downloader"
 	"cornstone/multimc"
-	"cornstone/throttler"
 	"cornstone/util"
 	"encoding/json"
 	"fmt"
+	"github.com/ViRb3/go-parallel/downloader"
+	"github.com/ViRb3/go-parallel/throttler"
 	"io/ioutil"
 	"log"
 	"os"
@@ -131,8 +131,13 @@ func (i *ModpackInstaller) processForgeServer(manifest *CornManifest, destPath s
 	savePath := filepath.Join(destPath, forgeName)
 
 	log.Println("Downloading Forge installer...")
-	request := downloader.Request{DownloadPath: savePath, DownloadUrl: downloadUrl}
-	result, cancelFunc := downloader.NewMultiDownloader(i.ConcurrentCount, request).Do()
+	job := downloader.Job{SaveFilePath: savePath, Url: downloadUrl}
+	result, cancelFunc := util.MultiDownload(downloader.SharedConfig{
+		ShowProgress:   true,
+		SkipSameLength: true,
+		Workers:        i.ConcurrentCount,
+		Jobs:           []downloader.Job{job},
+	})
 	defer cancelFunc()
 	for resp := range result {
 		if err := resp.Err; err != nil {
@@ -200,7 +205,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 
 	log.Println("Building addon download URLs...")
 	downloadPaths := map[string]bool{}
-	var requests []downloader.Request
+	var jobs []downloader.Job
 	for result := range addonThrottler.Run() {
 		opResult := result.(OpResult)
 		if opResult.Err != nil {
@@ -213,8 +218,8 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 			downloadPath += ".disabled"
 		}
 		downloadPaths[downloadPath] = true
-		request := downloader.Request{DownloadPath: downloadPath, DownloadUrl: opResult.downloadUrl}
-		requests = append(requests, request)
+		request := downloader.Job{SaveFilePath: downloadPath, Url: opResult.downloadUrl}
+		jobs = append(jobs, request)
 	}
 	cancelFunc()
 
@@ -241,8 +246,8 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 			}
 			downloadPaths[downloadPath] = true
 		}
-		request := downloader.Request{DownloadPath: downloadPath, DownloadUrl: file.Url, Tag: file}
-		requests = append(requests, request)
+		request := downloader.Job{SaveFilePath: downloadPath, Url: file.Url, Tag: file}
+		jobs = append(jobs, request)
 	}
 
 	log.Println("Removing old mods...")
@@ -269,17 +274,22 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	}
 
 	log.Println("Obtaining files...")
-	results, cancelFunc := downloader.NewMultiDownloader(i.ConcurrentCount, requests...).Do()
+	results, cancelFunc := util.MultiDownload(downloader.SharedConfig{
+		ShowProgress:   true,
+		SkipSameLength: true,
+		Workers:        i.ConcurrentCount,
+		Jobs:           jobs,
+	})
 	defer cancelFunc()
 	for result := range results {
-		request := result.Request
+		job := result.Job
 		if err := result.Err; err != nil {
-			if file, ok := request.Tag.(ExternalFile); ok {
+			if file, ok := job.Tag.(ExternalFile); ok {
 				log.Println("error downloading external file: " + file.Name)
 				if file.Required {
 					return err
 				}
-			} else if file, ok := request.Tag.(*CornFile); ok {
+			} else if file, ok := job.Tag.(*CornFile); ok {
 				log.Printf("error downloading addon: %d\n", file.ProjectID)
 				if file.Required {
 					return err
@@ -288,11 +298,11 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 				return err
 			}
 		}
-		if file, ok := request.Tag.(ExternalFile); ok && file.Extract.Enable && file.Required {
+		if file, ok := job.Tag.(ExternalFile); ok && file.Extract.Enable && file.Required {
 			extractPath := util.SafeJoin(destPath, file.InstallPath)
 			log.Printf("Extracting external file '%s'...\n", file.Name)
 			if err := archive.ExtractArchiveFromFile(archive.ExtractFileConfig{
-				ArchivePath: result.Request.DownloadPath,
+				ArchivePath: result.Job.SaveFilePath,
 				Common: archive.ExtractCommonConfig{
 					BasePath: "",
 					DestPath: extractPath,

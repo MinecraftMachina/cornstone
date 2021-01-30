@@ -2,7 +2,6 @@ package util
 
 import (
 	"encoding/json"
-	"github.com/schollz/progressbar/v3"
 	"io/ioutil"
 	"log"
 	"os"
@@ -55,11 +54,6 @@ func ensureExists(path string, mustDirectory bool, mustEmpty bool, canCreate boo
 	} else {
 		log.Fatalf("Error accessing path '%s'\n", path)
 	}
-}
-
-func NewBar(max int, description ...string) *progressbar.ProgressBar {
-	bar := progressbar.Default(int64(max), description...)
-	return bar
 }
 
 func SafeJoin(basePath string, unsafePath string) string {

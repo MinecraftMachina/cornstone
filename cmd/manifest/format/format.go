@@ -50,6 +50,7 @@ func execute() error {
 	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
+	defer cancelFunc()
 	addonThrottler := throttler.NewThrottler(throttler.Config{
 		Ctx:          ctx,
 		ResultBuffer: 10,
@@ -94,7 +95,6 @@ func execute() error {
 			return e.S(err.(error))
 		}
 	}
-	cancelFunc()
 
 	sort.Slice(manifest.Files, func(i, j int) bool {
 		return manifest.Files[i].Metadata.ProjectName < manifest.Files[j].Metadata.ProjectName

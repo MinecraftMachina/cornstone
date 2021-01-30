@@ -191,6 +191,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
+	defer cancelFunc()
 	addonThrottler := throttler.NewThrottler(throttler.Config{
 		Ctx:          ctx,
 		ResultBuffer: 10,
@@ -221,7 +222,6 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 		request := downloader.Job{SaveFilePath: downloadPath, Url: opResult.downloadUrl}
 		jobs = append(jobs, request)
 	}
-	cancelFunc()
 
 	for _, file := range manifest.ExternalFiles {
 		if i.TargetType == TargetServer && file.ServerIgnored {

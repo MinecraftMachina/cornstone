@@ -5,6 +5,7 @@ import (
 	"cornstone/throttler"
 	"cornstone/util"
 	"github.com/ViRb3/sling/v2"
+	"github.com/pkg/errors"
 	"io"
 	"net/http"
 	"os"
@@ -55,14 +56,18 @@ func (s *MultiDownloader) Do() (<-chan Result, context.CancelFunc) {
 			request := sourceItem.(Request)
 
 			resp, err := s.client.New().Head(request.DownloadUrl).Receive(nil, nil)
-			if err != nil {
+			// if HEAD is unsupported, don't panic
+			if err != nil && !errors.Is(err, util.ErrNon200StatusCode) {
 				return Result{resp, request, err}
 			}
-			if contentLen := resp.Header.Get("Content-Length"); contentLen != "" {
-				contentLenInt, err := strconv.ParseInt(contentLen, 10, 64)
-				if err == nil {
-					if stat, err := os.Stat(request.DownloadPath); err == nil && stat.Size() == contentLenInt {
-						return Result{resp, request, nil}
+			// if HEAD is supported, compare file lengths in hopes to skip re-downloading
+			if err == nil {
+				if contentLen := resp.Header.Get("Content-Length"); contentLen != "" {
+					contentLenInt, err := strconv.ParseInt(contentLen, 10, 64)
+					if err == nil {
+						if stat, err := os.Stat(request.DownloadPath); err == nil && stat.Size() == contentLenInt {
+							return Result{resp, request, nil}
+						}
 					}
 				}
 			}

@@ -94,6 +94,7 @@ func execute() error {
 			return e.S(err.(error))
 		}
 	}
+	cancelFunc()
 
 	sort.Slice(manifest.Files, func(i, j int) bool {
 		return manifest.Files[i].Metadata.ProjectName < manifest.Files[j].Metadata.ProjectName

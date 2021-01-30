@@ -216,6 +216,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 		request := downloader.Request{downloadPath, opResult.downloadUrl, nil}
 		requests = append(requests, request)
 	}
+	cancelFunc()
 
 	for _, file := range manifest.ExternalFiles {
 		if i.TargetType == TargetServer && file.ServerIgnored {

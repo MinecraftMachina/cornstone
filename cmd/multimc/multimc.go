@@ -2,9 +2,9 @@ package multimc
 
 import (
 	"cornstone/aliases/e"
+	"cornstone/cmd/multimc/dev"
 	"cornstone/cmd/multimc/initialize"
 	"cornstone/cmd/multimc/install"
-	"cornstone/cmd/multimc/dev"
 	"cornstone/cmd/multimc/run"
 	"cornstone/multimc"
 	"github.com/spf13/cobra"

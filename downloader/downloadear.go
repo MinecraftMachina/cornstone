@@ -51,36 +51,36 @@ func (s *MultiDownloader) Do() (<-chan Result, context.CancelFunc) {
 		ResultBuffer: 0,
 		Workers:      s.workers,
 		Source:       source,
-		Operation: func(sourceItem interface{}) (interface{}, error) {
+		Operation: func(sourceItem interface{}) interface{} {
 			request := sourceItem.(Request)
 
 			resp, err := s.client.New().Head(request.DownloadUrl).Receive(nil, nil)
 			if err != nil {
-				return Result{Err: err}, nil
+				return Result{resp, request, err}
 			}
 			if contentLen := resp.Header.Get("Content-Length"); contentLen != "" {
 				contentLenInt, err := strconv.ParseInt(contentLen, 10, 64)
 				if err == nil {
 					if stat, err := os.Stat(request.DownloadPath); err == nil && stat.Size() == contentLenInt {
-						return Result{nil, request, nil}, nil
+						return Result{resp, request, nil}
 					}
 				}
 			}
 			resp, err = s.client.New().Get(request.DownloadUrl).ReceiveBody()
 			if err != nil {
-				return Result{Err: err}, nil
+				return Result{resp, request, err}
 			}
 			defer resp.Body.Close()
 			file, err := os.Create(request.DownloadPath)
 			if err != nil {
-				return Result{Err: err}, nil
+				return Result{resp, request, err}
 			}
 			defer file.Close()
 			if _, err := io.Copy(file, resp.Body); err != nil {
 				os.Remove(file.Name())
-				return Result{Err: err}, nil
+				return Result{resp, request, err}
 			}
-			return Result{resp, request, nil}, nil
+			return Result{resp, request, nil}
 		},
 	})
 
@@ -93,8 +93,8 @@ func (s *MultiDownloader) handleMultiFile(returnResult chan Result, downloadThro
 	defer close(returnResult)
 	bar := util.NewBar(len(s.requests))
 	defer bar.Finish()
-	for response := range downloadThrottler.Run() {
-		returnResult <- response.Data.(Result)
+	for result := range downloadThrottler.Run() {
+		returnResult <- result.(Result)
 		bar.Add(1)
 	}
 }

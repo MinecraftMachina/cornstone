@@ -55,19 +55,19 @@ func execute() error {
 		ResultBuffer: 10,
 		Workers:      concurrentCount,
 		Source:       source,
-		Operation: func(sourceItem interface{}) (interface{}, error) {
+		Operation: func(sourceItem interface{}) interface{} {
 			manifestFile := sourceItem.(*curseforge.CornFile)
 			hash := fmt.Sprintf("%d%d", manifestFile.ProjectID, manifestFile.FileID)
 			if hash == manifestFile.Metadata.Hash && !force {
-				return nil, nil
+				return nil
 			}
 			addon, err := curseforge.QueryAddon(manifestFile.ProjectID)
 			if err != nil {
-				return nil, err
+				return err
 			}
 			files, err := curseforge.QueryAddonFiles(manifestFile.ProjectID)
 			if err != nil {
-				return nil, err
+				return err
 			}
 			var fileName string
 			for _, file := range files {
@@ -83,15 +83,15 @@ func execute() error {
 				WebsiteURL:  addon.WebsiteURL,
 				Hash:        hash,
 			}
-			return nil, nil
+			return nil
 		},
 	})
 
 	log.Println("Querying addons...")
-	for result := range addonThrottler.Run() {
-		if result.Error != nil {
+	for err := range addonThrottler.Run() {
+		if err != nil {
 			cancelFunc()
-			return e.S(result.Error)
+			return e.S(err.(error))
 		}
 	}
 

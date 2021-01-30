@@ -182,6 +182,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	type OpResult struct {
 		file        *CornFile
 		downloadUrl string
+		Err         error
 	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
@@ -190,10 +191,10 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 		ResultBuffer: 10,
 		Workers:      i.ConcurrentCount,
 		Source:       source,
-		Operation: func(sourceItem interface{}) (interface{}, error) {
+		Operation: func(sourceItem interface{}) interface{} {
 			file := sourceItem.(*CornFile)
 			url, err := GetAddonFileDownloadUrl(file.ProjectID, file.FileID)
-			return OpResult{file, url}, err
+			return OpResult{file, url, err}
 		},
 	})
 
@@ -201,11 +202,11 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	downloadPaths := map[string]bool{}
 	var requests []downloader.Request
 	for result := range addonThrottler.Run() {
-		if result.Error != nil {
+		opResult := result.(OpResult)
+		if opResult.Err != nil {
 			cancelFunc()
-			return result.Error
+			return opResult.Err
 		}
-		opResult := result.Data.(OpResult)
 
 		downloadPath := util.SafeJoin(modsPath, path.Base(opResult.downloadUrl))
 		if !opResult.file.Required {

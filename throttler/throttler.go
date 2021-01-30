@@ -6,11 +6,6 @@ import (
 	"sync"
 )
 
-type Result struct {
-	Data  interface{}
-	Error error
-}
-
 type Throttler struct {
 	Config
 }
@@ -20,7 +15,7 @@ type Config struct {
 	ResultBuffer int
 	Workers      int
 	Source       []interface{}
-	Operation    func(sourceItem interface{}) (interface{}, error)
+	Operation    func(sourceItem interface{}) interface{}
 }
 
 func NewThrottler(config Config) *Throttler {
@@ -29,9 +24,9 @@ func NewThrottler(config Config) *Throttler {
 	}
 }
 
-func (t *Throttler) Run() <-chan Result {
+func (t *Throttler) Run() <-chan interface{} {
 	throttleChan := make(chan bool, t.Workers)
-	resultChan := make(chan Result, t.ResultBuffer)
+	resultChan := make(chan interface{}, t.ResultBuffer)
 	wg := sync.WaitGroup{}
 
 	bar := util.NewBar(len(t.Source))
@@ -45,8 +40,8 @@ func (t *Throttler) Run() <-chan Result {
 				sourceItem := t.Source[i]
 				throttleChan <- true
 				go func() {
-					result, err := t.Operation(sourceItem)
-					resultChan <- Result{Data: result, Error: err}
+					result := t.Operation(sourceItem)
+					resultChan <- result
 					bar.Add(1)
 					wg.Done()
 					<-throttleChan

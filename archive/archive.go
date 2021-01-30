@@ -173,7 +173,7 @@ func DownloadAndExtract(downloadUrl string, logger *log.Logger, config ExtractCo
 	defer os.Remove(tempFilePath)
 
 	logger.Println("Downloading...")
-	request := downloader.Request{tempFilePath, downloadUrl, nil}
+	request := downloader.Request{DownloadPath: tempFilePath, DownloadUrl: downloadUrl}
 	result, cancelFunc := downloader.NewMultiDownloader(1, request).Do()
 	defer cancelFunc()
 	for resp := range result {

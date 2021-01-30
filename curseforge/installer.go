@@ -131,7 +131,7 @@ func (i *ModpackInstaller) processForgeServer(manifest *CornManifest, destPath s
 	savePath := filepath.Join(destPath, forgeName)
 
 	log.Println("Downloading Forge installer...")
-	request := downloader.Request{savePath, downloadUrl, nil}
+	request := downloader.Request{DownloadPath: savePath, DownloadUrl: downloadUrl}
 	result, cancelFunc := downloader.NewMultiDownloader(i.ConcurrentCount, request).Do()
 	defer cancelFunc()
 	for resp := range result {
@@ -213,7 +213,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 			downloadPath += ".disabled"
 		}
 		downloadPaths[downloadPath] = true
-		request := downloader.Request{downloadPath, opResult.downloadUrl, nil}
+		request := downloader.Request{DownloadPath: downloadPath, DownloadUrl: opResult.downloadUrl}
 		requests = append(requests, request)
 	}
 	cancelFunc()
@@ -241,7 +241,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 			}
 			downloadPaths[downloadPath] = true
 		}
-		request := downloader.Request{downloadPath, file.Url, file}
+		request := downloader.Request{DownloadPath: downloadPath, DownloadUrl: file.Url, Tag: file}
 		requests = append(requests, request)
 	}
 

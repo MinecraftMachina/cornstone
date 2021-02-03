@@ -193,6 +193,7 @@ func (i *ModpackInstaller) processMods(manifest *CornManifest, destPath string) 
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	defer cancelFunc()
 	addonThrottler := throttler.NewThrottler(throttler.Config{
+		ShowProgress: true,
 		Ctx:          ctx,
 		ResultBuffer: 10,
 		Workers:      i.ConcurrentCount,

@@ -7,7 +7,7 @@ platform:
 
 steps:
   - name: test
-    image: golang:1.15
+    image: golang:1.17
     volumes:
       - name: deps
         path: /go
@@ -19,9 +19,9 @@ steps:
           - tag
 
   - name: version
-    image: node:14.8
+    image: node:17.4
     commands:
-      - yarn global add semantic-release@17.1
+      - yarn global add semantic-release@19.0
       - semantic-release
 
     environment:
@@ -40,7 +40,7 @@ steps:
       event: tag
 
   - name: release
-    image: golang:1.15
+    image: golang:1.17
     environment:
       GITHUB_TOKEN:
         from_secret: github_token
@@ -48,7 +48,7 @@ steps:
       - name: deps
         path: /go
     commands:
-      - curl -sL https://github.com/goreleaser/goreleaser/releases/download/v0.142.0/goreleaser_Linux_x86_64.tar.gz | tar xzf - -C /tmp
+      - curl -sL https://github.com/goreleaser/goreleaser/releases/download/v1.4.1/goreleaser_Linux_x86_64.tar.gz | tar xzf - -C /tmp
       - /tmp/goreleaser -f "$PWD/.goreleaser.yml"
     when:
       event: tag
